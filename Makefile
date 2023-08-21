@@ -20,7 +20,7 @@ CXXFLAGS	= -Wall -Wextra -Werror -pedantic  -std=c++98 -g #-fsanitize=address
 #								SOURCE FILES								   #
 # **************************************************************************** #
 
-SRC =	$(SRC_DIR)/Server.cpp
+SRC = $(wildcard $(SRC_DIR)/*.cpp)
 
 OBJS = $(SRC:.cpp=.o)
 
