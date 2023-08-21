@@ -8,10 +8,16 @@
 #include <strings.h>
 #include <iostream>
 #include <unistd.h>
+#include <map>
+#include "Client.hpp"
+#include "Channel.hpp"
 
 class Server
 {
 private:
+	std::map<int, Client*>			clients;
+	std::map<std::string, Channel*>	channels;
+	int								socket;
 
 public:
 	Server();

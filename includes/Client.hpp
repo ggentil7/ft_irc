@@ -8,11 +8,17 @@
 #include <strings.h>
 #include <iostream>
 #include <unistd.h>
+#include <list>
 
 class Client
 {
 private:
-
+	int	socket;
+	std::string	nickname;
+	std::string	useername;
+	std::string	hostname;
+	std::string	realname;
+	std::list<std::string>	channels;
 public:
 	Client();
 	Client(Client const &src);
