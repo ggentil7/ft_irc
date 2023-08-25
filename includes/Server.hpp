@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <unistd.h>
+#include <cstring>
 #include <map>
 #include <vector>
 #include "Client.hpp"

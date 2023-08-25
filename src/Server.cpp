@@ -1,4 +1,4 @@
-#incldue "Server.hpp"
+#include "Server.hpp"
 
 // Server::Server() :_port(0), _socket(0);
 // {
@@ -83,8 +83,10 @@ void Server::connectionServer()
     int new_socket_client;
     int max_clients = 30;
     int client_socket[30];
-    socklen_t addrlen = sizeof(address);
+    int valread;
+    socklen_t addrlen = sizeof(_addr);
     char buffer[1025];
+    //std::map<int, std::string> message;
 
     while (true)
     {
@@ -112,6 +114,55 @@ void Server::connectionServer()
          if ((activity < 0) && (errno != EINTR)) //vérifie s'il n'y a pas d'erreur lors de l'appel à select() et si l'erreur n'est pas du à une interruption de signal (EINTR)
          {
             std::cerr << "select() error" << std::endl;
+         }
+         if (FD_ISSET(_socket, &readfds))
+         {
+            if ((new_socket_client = accept(_socket, (struct sockaddr*)&_addr, &addrlen)) < 0)
+            {
+                std::cerr << "accept error" << std::endl;
+            }
+            else
+            {
+                fcntl(new_socket_client, F_SETFL, O_NONBLOCK);
+
+                for (int i = 0; i < max_clients; i++) // add new_socket_client au tableau de socket
+                {
+                    if (client_socket[i] == 0)
+                    {
+                        client_socket[i] = new_socket_client;
+                        break;
+                    }
+                }
+            }
+            //else its some IO operation on some other socket
+            for (int i = 0; i < max_clients; i++)
+            {
+                max_sd = client_socket[i];
+
+                if (FD_ISSET(max_sd, &readfds))
+                {
+                    //Check if it was for closing , and also read the 
+                    //incoming message 
+                    if ((valread = read(max_sd, buffer, 1024)) == 0)
+                    {
+                        //Somebody disconnected , get his details and print 
+                        getpeername(max_sd, (struct sockaddr *)&_addr, s(ocklen_t *) &addrlen);
+                        std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << "port = " << nthos(_addr.sin_port) << std::endl;
+
+                        //Close the socket and mark as 0 in list for reuse
+                        close(max_sd);  
+                        client_socket[i] = 0;
+                    }
+                    //echo back the message that came in
+                    else
+                    {
+                        //set the string terminating NULL byte on the end 
+                        //of the data read
+                        buffer[valread] = '\0'; 
+                        send(max_sd, buffer, strlen(buffer), 0);
+                    }
+                }
+            }
          }
     }
 }
