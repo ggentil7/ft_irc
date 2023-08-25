@@ -1,12 +1,12 @@
 #include "Server.hpp"
 
-// Server::Server() :_port(0), _socket(0);
-// {
-// }
-
-Server::Server(int port) : _port(port), _socket(-1)
+Server::Server() :_port(0), _socket(0);
 {
 }
+
+/*Server::Server(int port) : _port(port), _socket(-1)
+{
+}*/
 
 Server::Server(Server const &src)
 {
@@ -55,7 +55,7 @@ void Server::createSocket()
     int opt = 1;
     if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
     {
-        std::cerr << "setsockopt failed" std::endl;;
+        std::cerr << "setsockopt failed" << std::endl;
         exit(EXIT_FAILURE);
     }
 
@@ -146,7 +146,7 @@ void Server::connectionServer()
                     if ((valread = read(max_sd, buffer, 1024)) == 0)
                     {
                         //Somebody disconnected , get his details and print 
-                        getpeername(max_sd, (struct sockaddr *)&_addr, s(ocklen_t *) &addrlen);
+                        getpeername(max_sd, (struct sockaddr *)&_addr, (socklen_t *) &addrlen);
                         std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << "port = " << nthos(_addr.sin_port) << std::endl;
 
                         //Close the socket and mark as 0 in list for reuse
