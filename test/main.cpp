@@ -6,7 +6,7 @@ int	main(void)
 
     // server.setPort(atoi(argv[1]));
 
-    server.setPort(8080); 
+    server.setPort(8085); 
     server.createSocket();
     server.connectionServer(); 
 	
