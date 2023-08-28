@@ -77,11 +77,78 @@ void Server::createSocket()
     }
 }
 
-void Server::connectionServer()
+void Server::connectionServer() 
+{
+    char buffer[1025];
+    socklen_t addrlen = sizeof(_addr);
+
+    while (true) 
+    {
+        fd_set readfds;
+        bzero(&readfds, sizeof(readfds));
+
+        FD_SET(_socket, &readfds);
+        int max_sd = _socket;
+
+        for (size_t i = 0; i < client_socket.size(); i++) 
+        {
+            int sd = client_socket[i];
+            if (sd > 0)
+                FD_SET(sd, &readfds);
+            if (sd > max_sd)
+                max_sd = sd;
+        }
+
+        int activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+
+        if ((activity < 0) && (errno != EINTR)) 
+        {
+            std::cerr << "select() error" << std::endl;
+        }
+
+        if (FD_ISSET(_socket, &readfds)) 
+        {
+            int new_socket_client;
+            if ((new_socket_client = accept(_socket, (struct sockaddr*)&_addr, &addrlen)) < 0) 
+            {
+                std::cerr << "accept error" << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            fcntl(new_socket_client, F_SETFL, O_NONBLOCK);
+
+            // Ajout du nouveau client dans le vector
+            client_socket.push_back(new_socket_client);
+        }
+
+        for (size_t i = 0; i < client_socket.size(); i++) 
+        {
+            int sd = client_socket[i];
+            if (FD_ISSET(sd, &readfds)) 
+            {
+                int valread;
+                if ((valread = read(sd, buffer, 1024)) == 0) 
+                {
+                    getpeername(sd, (struct sockaddr*)&_addr, &addrlen);
+                    std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << " port = " << ntohs(_addr.sin_port) << std::endl;
+
+                    close(sd);
+                    client_socket.erase(client_socket.begin() + i);
+                } else 
+                {
+                    buffer[valread] = '\0';
+                    send(sd, buffer, strlen(buffer), 0);
+                }
+            }
+        }
+    }
+}
+
+
+/*void Server::connectionServer()
 {
     int new_socket_client;
     int max_clients = 30;
-    int client_socket[30];
+    std::vector<int> client_sockets;
     int valread;
     int sd;
     socklen_t addrlen = sizeof(_addr);
@@ -169,7 +236,7 @@ void Server::connectionServer()
             }
          }
     }
-}
+}*/
 
 
 // void Server::connectionServer()

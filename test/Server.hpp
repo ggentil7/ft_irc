@@ -15,6 +15,8 @@
 #include <unistd.h>
 #include <cstring>
 #include <map>
+#include <cstring>  // pour strlen et autres fonctions de chaînes
+#include <cerrno>
 #include <vector>
 // #include "../includes/Client.hpp"
 // #include "../includes/Channel.hpp"
@@ -28,6 +30,7 @@ private:
 	int								_port;
 	int								_socket;
 	struct sockaddr_in				_addr;
+	std::vector<int> client_socket;
 
 public:
 	Server();
