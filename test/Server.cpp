@@ -133,7 +133,8 @@ void Server::connectionServer()
 
                     close(sd);
                     client_socket.erase(client_socket.begin() + i);
-                } else 
+                } 
+                else 
                 {
                     buffer[valread] = '\0';
                     send(sd, buffer, strlen(buffer), 0);
@@ -237,85 +238,3 @@ void Server::connectionServer()
          }
     }
 }*/
-
-
-// void Server::connectionServer()
-// {
-//     fd_set master;
-//     fd_set readfds;
-//     struct sockaddr_in serv_addr;
-//     struct sockaddr_in client_addr;
-//     int fdmax;
-//     int listener;
-//     int newfd;
-//     char buf[256];
-//     int nbytes;
-//     int yes = 1;
-//     socklen_t addrlen;
-//     int i, j;
-
-//     FD_ZERO(&master);
-//     FD_ZERO(&readfds);
-
-//     while (true)
-//     {
-//         readfds = master;
-
-//         if (select(fdmax + 1, &readfds, NULL, NULL) == -1)
-//         {
-//             std::cerr << "select error" << std::endl;
-//             exit (1);
-//         }
-//         for (i = 0; i <= fdmax; i++)
-//         {
-//             if (FD_ISSET(i, &readfds))
-//             {
-//                 if (i == listener)
-//                 {
-//                     addrlen = sizeof(client_addr);
-//                     if ((newfd = accept(listener, (struct sockaddr *) &client_addr, &addrlen)) == -1)
-//                     {
-//                         std::cerr << "accept error" << std::endl;
-//                         exit (1);
-//                     }
-//                     else
-//                     {
-//                         FD_SET(newfd, &master);
-//                         if (newfd > fdmax)
-//                         {
-//                             fdmax = newfd;
-//                         }
-//                     }
-//                 }
-//                 else
-//                 {
-//                     if ((nbytes = recv(i, buf, sizeof(buf), 0)) <= 0)
-//                     {
-//                         if (nbytes == 0)
-//                             std::cout << "select server :" << i << std::endl;
-//                     }
-//                     else
-//                         std::cerr << "recv error" << std::endl;
-//                 }
-//                 close (i);
-//                 FD_CLR(i, &master);
-//                 else
-//                 {
-//                     for (j = 0; j <= fdmax; j++)
-//                     {
-//                         if (FD_ISSET(j, &master))
-//                         {
-//                             if (j != listener && j != i)
-//                             {
-//                                 if (send(j, buf, nbytes, 0) == -1)
-//                                 {
-//                                     std::cerr << "send error" << std::endl;
-//                                 }
-//                             }
-//                         }
-//                     }
-//                 }
-//             }
-//         }
-//     }
-// }
