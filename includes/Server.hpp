@@ -7,6 +7,8 @@
 #include <sys/select.h>
 #include <sys/time.h>
 #include <arpa/inet.h>
+#include <errno.h>
+#include <string.h>
 #include <fcntl.h>
 #include <string>
 #include <iostream>
@@ -14,8 +16,8 @@
 #include <cstring>
 #include <map>
 #include <vector>
-#include "Client.hpp"
-#include "Channel.hpp"
+#include "../includes/Client.hpp"
+#include "../includes/Channel.hpp"
 
 
 class Server
@@ -31,7 +33,7 @@ public:
 	Server();
 	// Server(int port);
 	Server(Server const &src);
-	Server &operator=(Server const &rhs);
+	Server &operator=(Server const &src);
 	~Server();
 
 	void setPort(int port);
