@@ -1,12 +1,12 @@
 #include "Server.hpp"
 
-Server::Server() :_port(0), _socket(0);
+Server::Server() : _port(0), _socket(0)
 {
 }
 
-/*Server::Server(int port) : _port(port), _socket(-1)
-{
-}*/
+// Server::Server(int port)
+// {
+// }
 
 Server::Server(Server const &src)
 {
@@ -15,12 +15,10 @@ Server::Server(Server const &src)
 
 Server &Server::operator=(Server const &src)
 {
-    if (this != src)
-    {
-        _socket = src._socket;
-        _port = src._port;
-        _addr = src._addr;
-    }
+    _socket = src._socket;
+    _port = src._port;
+    _addr = src._addr;
+
     return (*this);
 }
 
@@ -147,7 +145,7 @@ void Server::connectionServer()
                     {
                         //Somebody disconnected , get his details and print 
                         getpeername(max_sd, (struct sockaddr *)&_addr, (socklen_t *) &addrlen);
-                        std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << "port = " << nthos(_addr.sin_port) << std::endl;
+                        std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << "port = " << ntohs(_addr.sin_port) << std::endl;
 
                         //Close the socket and mark as 0 in list for reuse
                         close(max_sd);  
