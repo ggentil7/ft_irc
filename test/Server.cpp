@@ -4,7 +4,7 @@ Server::Server() : _port(0), _socket(0)
 {
 }
 
-// Server::Server(int port)
+// Server::Server(int port, std::string password) + validPassowrd a initialiser
 // {
 // }
 
@@ -18,6 +18,8 @@ Server &Server::operator=(Server const &src)
     _socket = src._socket;
     _port = src._port;
     _addr = src._addr;
+    _password = src._password;
+    _validPassword = src._validPassword;
 
     return (*this);
 }
@@ -41,6 +43,16 @@ int Server::getSocket()
     return (_socket);
 }
 
+std::string Server::getPassword()
+{
+    return (_password);
+}
+
+bool    Server::getValidPassword()
+{
+    return (_validPassword);
+}
+
 void Server::createSocket()
 {
     _socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -61,7 +73,7 @@ void Server::createSocket()
     fcntl(_socket, F_SETFL, O_NONBLOCK);
 
     _addr.sin_family = AF_INET;
-    _addr.sin_addr.s_addr = INADDR_ANY;
+    _addr.sin_addr.s_addr = INADDR_ANY; //doit specifier IP, remplace INADDR_ANY par = inet_addr("adresse IP") actuellement on peut se co a nimp IP de la machine, utilise 127.0.0.1
     _addr.sin_port = htons(_port);
 
     if (bind(_socket, (struct sockaddr*)&_addr, sizeof(_addr)) < 0)
@@ -70,7 +82,7 @@ void Server::createSocket()
         exit(EXIT_FAILURE);
     }
 
-    if (listen(_socket, 10) < 0)
+    if (listen(_socket, 10) < 0) //modifier le 10 selon backlog des pending connections
     {
         std::cerr << "listen failed" << std::endl;;
         exit(EXIT_FAILURE);
@@ -98,9 +110,10 @@ void Server::connectionServer()
             if (sd > max_sd)
                 max_sd = sd;
         }
-
+        std::cout << "test avant select" << std::endl;
         int activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
 
+        std::cout << "test apres select" << std::endl;
         if ((activity < 0) && (errno != EINTR)) 
         {
             std::cerr << "select() error" << std::endl;
@@ -128,12 +141,13 @@ void Server::connectionServer()
                 int valread;
                 if ((valread = read(sd, buffer, 1024)) == 0) 
                 {
-                    getpeername(sd, (struct sockaddr*)&_addr, &addrlen);
+                    getpeername(sd, (struct sockaddr*)&_addr, &addrlen); //a modifier car pas le droit a getpeername et pas vraiment necessaire
                     std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << " port = " << ntohs(_addr.sin_port) << std::endl;
 
                     close(sd);
                     client_socket.erase(client_socket.begin() + i);
-                } 
+                }
+                //pour avoir le echo back
                 else 
                 {
                     buffer[valread] = '\0';

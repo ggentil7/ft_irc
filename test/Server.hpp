@@ -15,7 +15,7 @@
 #include <unistd.h>
 #include <cstring>
 #include <map>
-#include <cstring>  // pour strlen et autres fonctions de chaînes
+#include <cstring> 
 #include <cerrno>
 #include <vector>
 // #include "../includes/Client.hpp"
@@ -29,12 +29,14 @@ private:
 	// std::map<std::string, Channel*>	channels; //keyed by channel name
 	int								_port;
 	int								_socket;
+	bool							_validPassword;
 	struct sockaddr_in				_addr;
-	std::vector<int> client_socket;
+	std::string						_password;
+	std::vector<int> client_socket; //pour stocker les sd de chaque client connecté
 
 public:
 	Server();
-	// Server(int port);
+	// Server(int port, std::string password);
 	Server(Server const &src);
 	Server &operator=(Server const &src);
 	~Server();
@@ -42,6 +44,9 @@ public:
 	void setPort(int port);
 	int	 getPort();
 	int	 getSocket();
+
+	std::string getPassword();
+	bool		getValidPassword();
 
 	void createSocket();
 	void connectionServer();
