@@ -1,7 +1,9 @@
-#include "../includes/Command.hpp"
-#include "../includes/Server.hpp"
-#include "../includes/Client.hpp"
 #include "../includes/Channel.hpp"
+#include "../includes/Client.hpp"
+#include "../includes/ICommand.hpp"
+#include "../includes/JoinCommand.hpp"
+#include "../includes/NickCommand.hpp"
+#include "../includes/Server.hpp"
 
 Channel::Channel() {}
 

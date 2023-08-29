@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "Client.hpp"
-#include "Command.hpp"
+#include "ICommand.hpp"
 #include "Server.hpp"
 
 class Client;

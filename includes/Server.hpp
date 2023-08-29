@@ -18,18 +18,21 @@
 #include <cstring> 
 #include <cerrno>
 #include <vector>
+#include <sstream>
 
 #define IP_SERVER "127.0.0.1"
 #define BACK_LOG 30
-#define PORT 8085
-
+#define PORT 6667
 
 #include "Channel.hpp"
 #include "Client.hpp"
-#include "Command.hpp"
+#include "ICommand.hpp"
+#include "JoinCommand.hpp"
+#include "NickCommand.hpp"
 
 class Client;
 class Channel;
+class ICommand;
 
 class Server
 {
@@ -42,6 +45,7 @@ private:
 	struct sockaddr_in				_addr;
 	std::string						_password;
 	std::vector<int> 				client_socket;
+	std::map<std::string, ICommand*>	commandMap;
 
 public:
 	Server();
@@ -60,6 +64,7 @@ public:
 	void 		createSocket();
 	void 		connectionServer();
 
+	std::pair<std::string, std::vector<std::string> >	parse(std::string message);
 };
 
 #endif

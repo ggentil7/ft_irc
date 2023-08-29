@@ -7,7 +7,8 @@
 #include <list>
 
 #include "Channel.hpp"
-#include "Command.hpp"
+#include "Client.hpp"
+#include "ICommand.hpp"
 #include "Server.hpp"
 
 class Client

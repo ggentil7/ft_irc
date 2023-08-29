@@ -1,15 +1,17 @@
-#include "../includes/Command.hpp"
-#include "../includes/Server.hpp"
-#include "../includes/Client.hpp"
 #include "../includes/Channel.hpp"
+#include "../includes/Client.hpp"
+#include "../includes/ICommand.hpp"
+#include "../includes/JoinCommand.hpp"
+#include "../includes/NickCommand.hpp"
+#include "../includes/Server.hpp"
 
-int	main(void)
+int main(void)
 {
-	Server server; 
+	Server server;
 
-    server.setPort(PORT); 
-    server.createSocket();
-    server.connectionServer(); 
-	
+	server.setPort(PORT);
+	server.createSocket();
+	server.connectionServer();
+
 	return 0;
 }
