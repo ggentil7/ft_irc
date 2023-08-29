@@ -1,25 +1,25 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
 #include <strings.h>
 #include <iostream>
 #include <unistd.h>
 #include <list>
 #include <vector>
-#include "Client.hpp"
 
+#include "Client.hpp"
+#include "Command.hpp"
+#include "Server.hpp"
+
+class Client;
 class Channel
 {
 private:
-	std::string name;
-	std::string topic;
-	std::list<Client *> members;
-	std::list<Client *> operators;
-	unsigned int mode;
+	std::string			_name;
+	std::string			_topic;
+	std::list<Client*>	_members;
+	std::list<Client*>	_operators;
+	unsigned int 		_mode;
 
 	enum ModeFlags
 	{
@@ -36,28 +36,32 @@ public:
 	Channel &operator=(Channel const &rhs);
 	~Channel();
 
+	void	addClient(int fd);
+	void	removeClient(int fd);
+	void	broadcastMessage(const std::string &message);
+
 	// Check if a specific mode is set
 	bool has_mode(ModeFlags flag) const
 	{
-		return (mode & flag) != 0;
+		return (_mode & flag) != 0;
 	}
 
 	// Enable a specific mode
 	void enable_mode(ModeFlags flag)
 	{
-		mode |= flag;
+		_mode |= flag;
 	}
 
 	// Disable a specific mode
 	void disable_mode(ModeFlags flag)
 	{
-		mode &= ~flag;
+		_mode &= ~flag;
 	}
 
 	// Toggle a specific mode (if it's on, turn it off; if it's off, turn it on)
 	void toggle_mode(ModeFlags flag)
 	{
-		mode ^= flag;
+		_mode ^= flag;
 	}
 };
 

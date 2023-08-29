@@ -18,13 +18,18 @@
 #include <cstring> 
 #include <cerrno>
 #include <vector>
-#include "../includes/Client.hpp"
-#include "../includes/Channel.hpp"
 
 #define IP_SERVER "127.0.0.1"
 #define BACK_LOG 30
 #define PORT 8085
 
+
+#include "Channel.hpp"
+#include "Client.hpp"
+#include "Command.hpp"
+
+class Client;
+class Channel;
 
 class Server
 {
