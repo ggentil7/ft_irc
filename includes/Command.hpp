@@ -7,6 +7,8 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
+class Client;
+
 class Command
 {
 public:

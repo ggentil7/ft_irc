@@ -1,4 +1,7 @@
-#include "Server.hpp"
+#include "../includes/Client.hpp"
+#include "../includes/Command.hpp"
+#include "../includes/Server.hpp"
+#include "../includes/Channel.hpp"
 
 Server::Server() : _port(0), _socket(0)
 {

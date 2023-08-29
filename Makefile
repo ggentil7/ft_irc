@@ -5,9 +5,6 @@
 NAME = ircserv
 INCL_DIR = ./includes
 SRC_DIR = ./src
-NET_DIR = networking
-PARSE_DIR = parser
-CHANNEL_DIR = channel
 
 # **************************************************************************** #
 #						COMPILATION AND LINK FLAGS							   #
@@ -15,7 +12,7 @@ CHANNEL_DIR = channel
 
 CXX			?= g++
 CXXFLAGS	= -Wall -Wextra -Werror -pedantic  -std=c++98 -g #-fsanitize=address
-CXXFLAGS += -I$(INCL_DIR)
+INC_FLAG	= -I $(INCL_DIR)
 
 # **************************************************************************** #
 #								SOURCE FILES								   #
@@ -50,7 +47,7 @@ all: ${NAME}
 
 ${NAME}: compile ${OBJS} c_done
 	@printf "$(YE) Linking...$(RC)\n"
-	@${CC} ${CXXFLAGS} ${OBJS}  -o ${NAME}
+	@${CXX} ${CXXFLAGS} ${OBJS} ${INC_FLAG} -o ${NAME}
 	@printf "$(GR) => Success !$(RC)\n\n" 
 	@printf "$(GR)#***********************************#\n"
 	@printf "#                                   #\n"
@@ -59,7 +56,7 @@ ${NAME}: compile ${OBJS} c_done
 	@printf "#                                   #\n"
 	@printf "#***********************************#$(RC)\n"
 
-.c.o: 
+.cpp.o: 
 	@${CXX} ${CXXFLAGS} -o $@ -c $<
 	@printf "$(GR)$(REVR) $(RC)"
 
