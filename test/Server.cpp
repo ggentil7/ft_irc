@@ -4,7 +4,7 @@ Server::Server() : _port(0), _socket(0)
 {
 }
 
-// Server::Server(int port, std::string password) + validPassowrd a initialiser
+// Server::Server(int port, std::string password) + validPassowrd a initialiser false
 // {
 // }
 
@@ -141,7 +141,7 @@ void Server::connectionServer()
                 int valread;
                 if ((valread = read(sd, buffer, 1024)) == 0) 
                 {
-                    getpeername(sd, (struct sockaddr*)&_addr, &addrlen); //a modifier car pas le droit a getpeername et pas vraiment necessaire
+                    getpeername(sd, (struct sockaddr*)&_addr, &addrlen); //a modifier/supprimer car pas le droit a getpeername et pas vraiment necessaire
                     std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << " port = " << ntohs(_addr.sin_port) << std::endl;
 
                     close(sd);

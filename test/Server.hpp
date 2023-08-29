@@ -25,7 +25,7 @@
 class Server
 {
 private:
-	// std::map<std::string, Client*>	clients; //keyed by client nickname or ID (possible std::string a la palce de int)
+	// std::map<std::string, Client*>	clients; //keyed by client nickname or ID
 	// std::map<std::string, Channel*>	channels; //keyed by channel name
 	int								_port;
 	int								_socket;
@@ -41,15 +41,15 @@ public:
 	Server &operator=(Server const &src);
 	~Server();
 
-	void setPort(int port);
-	int	 getPort();
-	int	 getSocket();
+	void 		setPort(int port);
+	int	 		getPort();
+	int	 		getSocket();
 
 	std::string getPassword();
 	bool		getValidPassword();
 
-	void createSocket();
-	void connectionServer();
+	void 		createSocket();
+	void 		connectionServer();
 
 };
 
