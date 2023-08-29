@@ -15,6 +15,7 @@ CHANNEL_DIR = channel
 
 CXX			?= g++
 CXXFLAGS	= -Wall -Wextra -Werror -pedantic  -std=c++98 -g #-fsanitize=address
+CXXFLAGS += -I$(INCL_DIR)
 
 # **************************************************************************** #
 #								SOURCE FILES								   #
@@ -58,7 +59,7 @@ ${NAME}: compile ${OBJS} c_done
 	@printf "#                                   #\n"
 	@printf "#***********************************#$(RC)\n"
 
-.c.o:
+.c.o: 
 	@${CXX} ${CXXFLAGS} -o $@ -c $<
 	@printf "$(GR)$(REVR) $(RC)"
 

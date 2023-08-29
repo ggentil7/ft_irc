@@ -4,26 +4,56 @@
 #include <netinet/in.h>
 #include <sys/socket.h> 
 #include <sys/types.h>
+#include <sys/select.h>
+#include <sys/time.h>
 #include <arpa/inet.h>
-#include <strings.h>
+#include <errno.h>
+#include <string.h>
+#include <fcntl.h>
+#include <string>
 #include <iostream>
 #include <unistd.h>
+#include <cstring>
 #include <map>
-#include "Client.hpp"
-#include "Channel.hpp"
+#include <cstring> 
+#include <cerrno>
+#include <vector>
+#include "../includes/Client.hpp"
+#include "../includes/Channel.hpp"
+
+#define IP_SERVER "127.0.0.1"
+#define BACK_LOG 30
+#define PORT 8085
+
 
 class Server
 {
 private:
-	std::map<int, Client*>			clients;
-	std::map<std::string, Channel*>	channels;
-	int								socket;
+	std::map<std::string, Client*>	clients; //keyed by client nickname or ID
+	std::map<std::string, Channel*>	channels; //keyed by channel name
+	int								_port;
+	int								_socket;
+	bool							_validPassword;
+	struct sockaddr_in				_addr;
+	std::string						_password;
+	std::vector<int> 				client_socket;
 
 public:
 	Server();
+	// Server(int port, std::string password);
 	Server(Server const &src);
-	Server &operator=(Server const &rhs);
+	Server &operator=(Server const &src);
 	~Server();
+
+	void 		setPort(int port);
+	int	 		getPort();
+	int	 		getSocket();
+
+	std::string getPassword();
+	bool		getValidPassword();
+
+	void 		createSocket();
+	void 		connectionServer();
 
 };
 
