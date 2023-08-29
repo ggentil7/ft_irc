@@ -2,18 +2,15 @@
 #define COMMAND_HPP
 
 #include <sstream>
-#include "Server.hpp"
-#include "Client.hpp"
+
 #include "Channel.hpp"
+#include "Client.hpp"
+#include "Server.hpp"
 
 class Command
 {
 public:
-	Command();
-	Command(int client_fd, const std::string &message);
-	Command(Command const &src);
-	Command &operator=(Command const &rhs);
-	~Command();
+	Command(int client_fd, const std::string &message, std::map<int, Client> &clients);
 
 	void	parse();
 	void	dispatch();
@@ -23,6 +20,7 @@ private:
 	std::string					_message;
 	std::string					_command;
 	std::vector<std::string>	_params;
+	std::map<int, Client>&		_clients;
 
 	std::map<std::string, void (Command::*)()>	_commandMap;
 
@@ -31,6 +29,11 @@ private:
 	void handleNick();
 	void handleJoin();
 	void handlePrivMsg();
+
+	Command();
+	Command(Command const &src);
+	Command &operator=(Command const &rhs);
+	~Command();
 };
 
 #endif

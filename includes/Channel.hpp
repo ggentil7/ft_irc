@@ -1,17 +1,17 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <arpa/inet.h>
 #include <strings.h>
 #include <iostream>
 #include <unistd.h>
 #include <list>
 #include <vector>
-#include "Client.hpp"
 
+#include "Client.hpp"
+#include "Command.hpp"
+#include "Server.hpp"
+
+class Client;
 class Channel
 {
 private:

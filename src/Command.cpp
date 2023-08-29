@@ -1,24 +1,13 @@
+#include "../includes/Client.hpp"
 #include "../includes/Command.hpp"
+#include "../includes/Server.hpp"
+#include "../includes/Channel.hpp"
 
-Command::Command() {}
-
-Command::Command(int client_fd, const std::string &message)
-	: _client_fd(client_fd), _message(message)
+Command::Command(int client_fd, const std::string &message, std::map<int, Client> &clients)
+	: _client_fd(client_fd), _message(message), _clients(clients)
 {
 	initCommandMap();
 }
-
-Command::Command(Command const &src)
-{
-	*this = src;
-}
-Command &Command::operator=(Command const &rhs)
-{
-	(void)rhs;
-	return (*this);
-}
-
-Command::~Command() {}
 
 void Command::initCommandMap()
 {
@@ -82,7 +71,13 @@ void Command::dispatch()
 
 void Command::handleNick()
 {
-
+	if (_params.size() < 1) //! Send error reply: ERR_NONICKNAMEGIVEN (431)
+        return;
+	std::string newNick = _params[0];
+	if (_clients.find(_client_fd) != _clients.end())
+		_clients[_client_fd].getNickname() = newNick;
+	else
+		return; //! error reply back client not registered
 }
 
 void Command::handleJoin()

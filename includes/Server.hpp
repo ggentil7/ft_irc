@@ -9,8 +9,13 @@
 #include <iostream>
 #include <unistd.h>
 #include <map>
-#include "Client.hpp"
+
 #include "Channel.hpp"
+#include "Client.hpp"
+#include "Command.hpp"
+
+class Client;
+class Channel;
 
 class Server
 {
