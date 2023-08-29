@@ -1,10 +1,10 @@
-#include "../includes/Server.hpp"
+#include "Server.hpp"
 
 Server::Server() : _port(0), _socket(0)
 {
 }
 
-// Server::Server(int port)
+// Server::Server(int port, std::string password) + validPassowrd a initialiser false
 // {
 // }
 
@@ -18,6 +18,8 @@ Server &Server::operator=(Server const &src)
     _socket = src._socket;
     _port = src._port;
     _addr = src._addr;
+    _password = src._password;
+    _validPassword = src._validPassword;
 
     return (*this);
 }
@@ -41,6 +43,16 @@ int Server::getSocket()
     return (_socket);
 }
 
+std::string Server::getPassword()
+{
+    return (_password);
+}
+
+bool    Server::getValidPassword()
+{
+    return (_validPassword);
+}
+
 void Server::createSocket()
 {
     _socket = socket(AF_INET, SOCK_STREAM, 0);
@@ -51,7 +63,8 @@ void Server::createSocket()
     }
     
     int opt = 1;
-    if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt)))
+    
+    if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)))
     {
         std::cerr << "setsockopt failed" << std::endl;
         exit(EXIT_FAILURE);
@@ -60,7 +73,7 @@ void Server::createSocket()
     fcntl(_socket, F_SETFL, O_NONBLOCK);
 
     _addr.sin_family = AF_INET;
-    _addr.sin_addr.s_addr = INADDR_ANY;
+    _addr.sin_addr.s_addr = inet_addr(IP_SERVER);
     _addr.sin_port = htons(_port);
 
     if (bind(_socket, (struct sockaddr*)&_addr, sizeof(_addr)) < 0)
@@ -69,98 +82,78 @@ void Server::createSocket()
         exit(EXIT_FAILURE);
     }
 
-    if (listen(_socket, 10) < 0)
+    if (listen(_socket, BACK_LOG) < 0)
     {
         std::cerr << "listen failed" << std::endl;;
         exit(EXIT_FAILURE);
     }
 }
 
-void Server::connectionServer()
+void Server::connectionServer() 
 {
-    int new_socket_client;
-    int max_clients = 30;
-    int client_socket[30];
-    int valread;
-    socklen_t addrlen = sizeof(_addr);
     char buffer[1025];
-    //std::map<int, std::string> message;
+    socklen_t addrlen = sizeof(_addr);
 
-    while (true)
+    while (true) 
     {
         fd_set readfds;
-        FD_ZERO(&readfds);
+        bzero(&readfds, sizeof(readfds));
+
         FD_SET(_socket, &readfds);
-        int max_sd = _socket; //représente le maximum socket descriptor
+        int max_sd = _socket;
 
-         for (int i = 0; i < max_clients; i++)
-         {
-            if (client_socket[i] > 0)
-            {
-                FD_SET(client_socket[i], &readfds);
-                if (client_socket[i] > max_sd)
-                {
-                    max_sd = client_socket[i];
-                }
-            }
-         }
+        for (size_t i = 0; i < client_socket.size(); i++) 
+        {
+            int sd = client_socket[i];
+            if (sd > 0)
+                FD_SET(sd, &readfds);
+            if (sd > max_sd)
+                max_sd = sd;
+        }
 
-         //wait for an activity on one of the sockets , timeout is NULL , 
-        //so wait indefinitely 
-         int activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
+        int activity = select(max_sd + 1, &readfds, NULL, NULL, NULL);
 
-         if ((activity < 0) && (errno != EINTR)) //vérifie s'il n'y a pas d'erreur lors de l'appel à select() et si l'erreur n'est pas du à une interruption de signal (EINTR)
-         {
+        if ((activity < 0) && (errno != EINTR)) 
+        {
             std::cerr << "select() error" << std::endl;
-         }
-         if (FD_ISSET(_socket, &readfds))
-         {
-            if ((new_socket_client = accept(_socket, (struct sockaddr*)&_addr, &addrlen)) < 0)
+        }
+
+        if (FD_ISSET(_socket, &readfds)) 
+        {
+            int new_socket_client;
+            if ((new_socket_client = accept(_socket, (struct sockaddr*)&_addr, &addrlen)) < 0) 
             {
                 std::cerr << "accept error" << std::endl;
+                exit(EXIT_FAILURE);
             }
-            else
-            {
-                fcntl(new_socket_client, F_SETFL, O_NONBLOCK);
+            fcntl(new_socket_client, F_SETFL, O_NONBLOCK);
 
-                for (int i = 0; i < max_clients; i++) // add new_socket_client au tableau de socket
+            // Ajout du nouveau client dans le vector
+            client_socket.push_back(new_socket_client);
+        }
+
+        for (size_t i = 0; i < client_socket.size(); i++) 
+        {
+            int sd = client_socket[i];
+            if (FD_ISSET(sd, &readfds)) 
+            {
+                int valread;
+                if ((valread = read(sd, buffer, 1024)) == 0) 
                 {
-                    if (client_socket[i] == 0)
-                    {
-                        client_socket[i] = new_socket_client;
-                        break;
-                    }
+                    getpeername(sd, (struct sockaddr*)&_addr, &addrlen); //a supprimer car pour debug
+                    std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << " port = " << ntohs(_addr.sin_port) << std::endl;
+
+                    close(sd);
+                    client_socket.erase(client_socket.begin() + i);
+                }
+                //pour avoir le echo back
+                else 
+                {
+                    buffer[valread] = '\0';
+                    send(sd, buffer, strlen(buffer), 0);
                 }
             }
-            //else its some IO operation on some other socket
-            for (int i = 0; i < max_clients; i++)
-            {
-                max_sd = client_socket[i];
-
-                if (FD_ISSET(max_sd, &readfds))
-                {
-                    //Check if it was for closing , and also read the 
-                    //incoming message 
-                    if ((valread = read(max_sd, buffer, 1024)) == 0)
-                    {
-                        //Somebody disconnected , get his details and print 
-                        getpeername(max_sd, (struct sockaddr *)&_addr, (socklen_t *) &addrlen);
-                        std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << "port = " << ntohs(_addr.sin_port) << std::endl;
-
-                        //Close the socket and mark as 0 in list for reuse
-                        close(max_sd);  
-                        client_socket[i] = 0;
-                    }
-                    //echo back the message that came in
-                    else
-                    {
-                        //set the string terminating NULL byte on the end 
-                        //of the data read
-                        buffer[valread] = '\0'; 
-                        send(max_sd, buffer, strlen(buffer), 0);
-                    }
-                }
-            }
-         }
+        }
     }
 }
+

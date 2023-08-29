@@ -15,33 +15,45 @@
 #include <unistd.h>
 #include <cstring>
 #include <map>
+#include <cstring> 
+#include <cerrno>
 #include <vector>
 #include "../includes/Client.hpp"
 #include "../includes/Channel.hpp"
+
+#define IP_SERVER "127.0.0.1"
+#define BACK_LOG 30
+#define PORT 8085
 
 
 class Server
 {
 private:
-	std::map<std::string, Client*>	clients; //keyed by client nickname or ID (possible std::string a la palce de int)
+	std::map<std::string, Client*>	clients; //keyed by client nickname or ID
 	std::map<std::string, Channel*>	channels; //keyed by channel name
 	int								_port;
 	int								_socket;
+	bool							_validPassword;
 	struct sockaddr_in				_addr;
+	std::string						_password;
+	std::vector<int> 				client_socket;
 
 public:
 	Server();
-	// Server(int port);
+	// Server(int port, std::string password);
 	Server(Server const &src);
 	Server &operator=(Server const &src);
 	~Server();
 
-	void setPort(int port);
-	int	 getPort();
-	int	 getSocket();
+	void 		setPort(int port);
+	int	 		getPort();
+	int	 		getSocket();
 
-	void createSocket();
-	void connectionServer();
+	std::string getPassword();
+	bool		getValidPassword();
+
+	void 		createSocket();
+	void 		connectionServer();
 
 };
 

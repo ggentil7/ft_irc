@@ -4,11 +4,11 @@ int	main(void)
 {
 	Server server; 
 
-    // server.setPort(atoi(argv[1]));
-
-    server.setPort(8080); 
+    server.setPort(PORT); 
     server.createSocket();
     server.connectionServer(); 
+	
+	return 0;
 	
 	return 0;
 }
