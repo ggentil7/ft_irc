@@ -13,28 +13,29 @@
 class Client
 {
 private:
-	int	socket;
-	std::string	nickname;
-	std::string	username;
-	std::string	hostname;
-	std::string	realname;
-	std::list<std::string>	channels;
+	int			_fd;
+	std::string	_nickname;
+	std::string	_username;
+	std::string	_hostname;
+	std::string	_realname;
+	std::list<std::string>	_channels;
 public:
 	Client();
 	Client(Client const &src);
 	Client &operator=(Client const &rhs);
 	~Client();
 
+	int			getFd(void) const;
 	std::string	getNickname(void) const;
 	std::string	getUsername(void) const;
 	std::string	getHostname(void) const;
 	std::string	getRealname(void) const;
 
+	void	setFd(int fd);
 	void	setNickname(std::string nickname);
 	void	setUsername(std::string username);
 	void	setHostname(std::string hostname);
 	void	setRealname(std::string realname);
-
 };
 
 #endif

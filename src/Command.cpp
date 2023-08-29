@@ -75,14 +75,17 @@ void Command::handleNick()
         return;
 	std::string newNick = _params[0];
 	if (_clients.find(_client_fd) != _clients.end())
-		_clients[_client_fd].getNickname() = newNick;
+		_clients[_client_fd].setNickname(newNick);
 	else
 		return; //! error reply back client not registered
 }
 
 void Command::handleJoin()
 {
-
+   if (_params.size() < 1)  // Send error reply: ERR_NEEDMOREPARAMS (461)
+        return;
+	std::string	channelName = _params[0];
+	//TODO
 }
 
 void Command::handlePrivMsg()

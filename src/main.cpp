@@ -12,6 +12,4 @@ int	main(void)
     server.connectionServer(); 
 	
 	return 0;
-	
-	return 0;
 }
