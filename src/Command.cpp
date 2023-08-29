@@ -1,4 +1,4 @@
-#include "Command.hpp"
+#include "../includes/Command.hpp"
 
 Command::Command() {}
 
@@ -78,4 +78,19 @@ void Command::dispatch()
 	{
 		// Handle unknown command or send an error reply
 	}
+}
+
+void Command::handleNick()
+{
+
+}
+
+void Command::handleJoin()
+{
+
+}
+
+void Command::handlePrivMsg()
+{
+
 }
