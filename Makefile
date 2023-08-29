@@ -21,7 +21,7 @@ CXXFLAGS += -I$(INCL_DIR)
 #								SOURCE FILES								   #
 # **************************************************************************** #
 
-SRC =	$(wildcard $(SRC_DIR)/*.cpp)
+SRC = $(wildcard $(SRC_DIR)/*.cpp)
 
 OBJS = $(SRC:.cpp=.o)
 
