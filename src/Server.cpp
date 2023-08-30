@@ -148,9 +148,39 @@ void Server::connectionServer()
 
 			// Here, you can send the welcome messages to the new client
 			_clients[new_socket_client] = new Client();
-			_clients[new_socket_client]->setNickname("default_nick");
-			std::string welcomeMsg = ":YourServer 001 " + this->_clients[_client_socket.back()]->getNickname() + " :Welcome to the IRC Network " + this->_clients[new_socket_client]->getNickname() + "\r\n";
+			_clients[new_socket_client]->setNickname("default_nick"); //? use config file
+
+			std::string nick = this->_clients[_client_socket.back()]->getNickname();
+
+			// Welcome Message (RPL_WELCOME)
+			std::string welcomeMsg = ":ft_irc 001 " + nick + " :Welcome to the IRC Network " + nick + "\r\n";
 			send(_client_socket.back(), welcomeMsg.c_str(), welcomeMsg.length(), 0);
+
+			// Your Host (RPL_YOURHOST)
+			std::string yourHostMsg = ":ft_irc 002 " + nick + " :Your host is ft_irc, running version ircd-2.10.3\r\n";
+			send(_client_socket.back(), yourHostMsg.c_str(), yourHostMsg.length(), 0);
+
+			// Send Server Created
+			std::string createdMsg = ":ft_irc 003 " + nick + " :This server was created Tue Nov 3 2020 at 12:34:56 PST\r\n";
+			send(_client_socket.back(), createdMsg.c_str(), createdMsg.length(), 0);
+
+			// Send My Info
+			std::string myInfoMsg = ":ft_irc 004 " + nick + " ft_irc ircd-2.10.3\r\n";
+			send(_client_socket.back(), myInfoMsg.c_str(), myInfoMsg.length(), 0);
+
+			// Send CAP LS
+			std::string capLSMsg = ":ft_irc CAP * LS :multi-prefix\r\n";
+			send(_client_socket.back(), capLSMsg.c_str(), capLSMsg.length(), 0);
+
+			// Send MOTD
+			std::string motdMsg = ":ft_irc 372 " + nick + " :- Welcome to ft_irc!\r\n";
+			send(_client_socket.back(), motdMsg.c_str(), motdMsg.length(), 0);
+			std::string endMOTDMsg = ":ft_irc 376 " + nick + " :End of MOTD command\r\n";
+			send(_client_socket.back(), endMOTDMsg.c_str(), endMOTDMsg.length(), 0);
+
+			// Send Initial Modes
+			std::string modeMsg = ":ft_irc MODE " + nick + " :+i\r\n";
+			send(_client_socket.back(), modeMsg.c_str(), modeMsg.length(), 0);
 		}
 
 		for (size_t i = 0; i < _client_socket.size(); i++)
@@ -161,20 +191,12 @@ void Server::connectionServer()
 				int valread;
 				if ((valread = read(sd, buffer, 1024)) == 0)
 				{
-					getpeername(sd, (struct sockaddr *)&_addr, &addrlen); // a supprimer car pour debug
-					std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << " port = " << ntohs(_addr.sin_port) << std::endl;
-
 					close(sd);
 					_client_socket.erase(_client_socket.begin() + i);
 				}
 				else
 				{
 					buffer[valread] = '\0';
-					if (std::string(buffer).find("CAP LS") != std::string::npos)
-					{
-						std::string capResponse = ":YourServer CAP * LS :\r\n";
-						send(sd, capResponse.c_str(), capResponse.length(), 0);
-					}
 					std::string incomingMessage = std::string(buffer);
 					std::pair<std::string, std::vector<std::string> > parsedData = parse(incomingMessage);
 					std::string command = parsedData.first;
