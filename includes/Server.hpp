@@ -70,7 +70,6 @@ public:
 	std::pair<std::string, std::vector<std::string> >	parse(std::string message);
 
 	bool	isNickInUse(const std::string& nick);
-	void	setNick(const std::string& nick, int client_fd);
 	void	sendReply(const std::string& message, int client_fd);
 };
 

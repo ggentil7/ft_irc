@@ -19,8 +19,9 @@ void NickCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		return;
 	}
 	// If the nickname is valid and not in use, set it
-	server.setNick(newNick, client_fd);
+	server.getClients()[client_fd]->setNickname(newNick);
 
 	// Send a reply to confirm the change of nickname
-	server.sendReply("RPL_NICK " + newNick + " :Nickname changed.", client_fd);
+	std::string	reply = ":" + oldNick + "!~username@host NICK :" + newNick + "\r\n";
+	server.sendReply(reply, client_fd);
 }

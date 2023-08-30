@@ -240,13 +240,6 @@ bool Server::isNickInUse(const std::string &nick)
 	return (false);
 }
 
-void Server::setNick(const std::string &nick, int client_fd)
-{
-	// Set the new nickname
-	(void) nick;
-	(void) client_fd;
-}
-
 void Server::sendReply(const std::string &message, int client_fd)
 {
 	// Send the IRC reply back to the client
