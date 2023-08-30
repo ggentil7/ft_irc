@@ -5,7 +5,7 @@
 #include "../includes/NickCommand.hpp"
 #include "../includes/Server.hpp"
 
-Client::Client() : _isOperator(false)
+Client::Client() : _nickname("default_nick"), _username("default_user"), _hostname("default_host"), _realname("default_real"), _isOperator(false)
 {
 	(void) _isOperator; //!
 }

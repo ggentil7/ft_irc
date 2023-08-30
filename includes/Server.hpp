@@ -59,6 +59,7 @@ public:
 	void 		setPort(int port);
 	int	 		getPort();
 	int	 		getSocket();
+	std::map<int, Client*>	getClients();
 
 	std::string getPassword();
 	bool		getValidPassword();
@@ -67,6 +68,10 @@ public:
 	void 		connectionServer();
 
 	std::pair<std::string, std::vector<std::string> >	parse(std::string message);
+
+	bool	isNickInUse(const std::string& nick);
+	void	setNick(const std::string& nick, int client_fd);
+	void	sendReply(const std::string& message, int client_fd);
 };
 
 #endif

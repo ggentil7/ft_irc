@@ -5,8 +5,9 @@
 
 Server::Server() : _port(0), _socket(0), _validPassword(false)
 {
-	_commandMap["JOIN"] = new JoinCommand();
+	_commandMap["PASS"] = new PassCommand();
 	_commandMap["NICK"] = new NickCommand();
+	_commandMap["JOIN"] = new JoinCommand();
 }
 
 // Server::Server(int port, std::string password) + validPassowrd a initialiser false
@@ -31,6 +32,8 @@ Server &Server::operator=(Server const &src)
 
 Server::~Server()
 {
+	for (std::map<std::string, ICommand*>::iterator it = _commandMap.begin(); it != _commandMap.end(); ++it)
+		delete it->second;
 }
 
 void Server::setPort(int port)
@@ -46,6 +49,11 @@ int Server::getPort()
 int Server::getSocket()
 {
 	return (_socket);
+}
+
+std::map<int, Client*>	Server::getClients()
+{
+	return (this->_clients);
 }
 
 std::string Server::getPassword()
@@ -139,9 +147,10 @@ void Server::connectionServer()
 			_client_socket.push_back(new_socket_client);
 
 			// Here, you can send the welcome messages to the new client
-			std::string clientNick = "some_default_nick"; // You'll probably have a way to get the client's chosen nick
-			std::string welcomeMsg = ":YourServer 001 " + clientNick + " :Welcome to the IRC Network " + clientNick + "\r\n";
-			send(new_socket_client, welcomeMsg.c_str(), welcomeMsg.length(), 0);
+			_clients[new_socket_client] = new Client();
+			_clients[new_socket_client]->setNickname("default_nick");
+			std::string welcomeMsg = ":YourServer 001 " + this->_clients[_client_socket.back()]->getNickname() + " :Welcome to the IRC Network " + this->_clients[new_socket_client]->getNickname() + "\r\n";
+			send(_client_socket.back(), welcomeMsg.c_str(), welcomeMsg.length(), 0);
 		}
 
 		for (size_t i = 0; i < _client_socket.size(); i++)
@@ -200,7 +209,7 @@ std::pair<std::string, std::vector<std::string> > Server::parse(std::string mess
 	}
 
 	// Parse parameters
-	std::vector<std::string>	params;
+	std::vector<std::string> params;
 	while (iss >> token)
 	{
 		if (token[0] == ':')
@@ -222,3 +231,39 @@ std::pair<std::string, std::vector<std::string> > Server::parse(std::string mess
 	}
 	return (std::make_pair(command, params));
 }
+
+bool Server::isNickInUse(const std::string &nick)
+{
+	// Check if the nickname is already in use
+	// Return true if it is, false otherwise
+	(void) nick;
+	return (false);
+}
+
+void Server::setNick(const std::string &nick, int client_fd)
+{
+	// Set the new nickname
+	(void) nick;
+	(void) client_fd;
+}
+
+void Server::sendReply(const std::string &message, int client_fd)
+{
+	// Send the IRC reply back to the client
+	std::string formattedMessage = message + "\r\n";
+	const char *cMessage = formattedMessage.c_str();
+	if (send(client_fd, cMessage, std::strlen(cMessage), 0) == -1)
+	{
+		// Log the error or handle it appropriately
+		std::cerr << "Failed to send reply to client: " << client_fd << std::endl;
+	}
+}
+
+/*
+// cleanup when a client disconnects
+int client_fd = // the client's file descriptor
+if (this->_clients.find(client_fd) != this->_clients.end()) {
+    delete this->_clients[client_fd];
+    this->_clients.erase(client_fd);
+}
+*/

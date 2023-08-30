@@ -3,6 +3,7 @@
 #define PASSCOMMAND_HPP
 
 #include "ICommand.hpp"
+#include <iostream>
 
 class PassCommand : public ICommand
 {
