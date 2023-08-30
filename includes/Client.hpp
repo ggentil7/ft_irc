@@ -19,7 +19,7 @@ private:
 	std::string	_username;
 	std::string	_hostname;
 	std::string	_realname;
-	std::list<std::string>	_channels;
+	bool		_isOperator;
 public:
 	Client();
 	Client(Client const &src);

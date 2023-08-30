@@ -5,8 +5,8 @@
 
 Server::Server() : _port(0), _socket(0), _validPassword(false)
 {
-	commandMap["JOIN"] = new JoinCommand();
-	commandMap["NICK"] = new NickCommand();
+	_commandMap["JOIN"] = new JoinCommand();
+	_commandMap["NICK"] = new NickCommand();
 }
 
 // Server::Server(int port, std::string password) + validPassowrd a initialiser false
@@ -109,9 +109,9 @@ void Server::connectionServer()
 		FD_SET(_socket, &readfds);
 		int max_sd = _socket;
 
-		for (size_t i = 0; i < client_socket.size(); i++)
+		for (size_t i = 0; i < _client_socket.size(); i++)
 		{
-			int sd = client_socket[i];
+			int sd = _client_socket[i];
 			if (sd > 0)
 				FD_SET(sd, &readfds);
 			if (sd > max_sd)
@@ -136,7 +136,7 @@ void Server::connectionServer()
 			fcntl(new_socket_client, F_SETFL, O_NONBLOCK);
 
 			// Ajout du nouveau client dans le vector
-			client_socket.push_back(new_socket_client);
+			_client_socket.push_back(new_socket_client);
 
 			// Here, you can send the welcome messages to the new client
 			std::string clientNick = "some_default_nick"; // You'll probably have a way to get the client's chosen nick
@@ -144,9 +144,9 @@ void Server::connectionServer()
 			send(new_socket_client, welcomeMsg.c_str(), welcomeMsg.length(), 0);
 		}
 
-		for (size_t i = 0; i < client_socket.size(); i++)
+		for (size_t i = 0; i < _client_socket.size(); i++)
 		{
-			int sd = client_socket[i];
+			int sd = _client_socket[i];
 			if (FD_ISSET(sd, &readfds))
 			{
 				int valread;
@@ -156,7 +156,7 @@ void Server::connectionServer()
 					std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << " port = " << ntohs(_addr.sin_port) << std::endl;
 
 					close(sd);
-					client_socket.erase(client_socket.begin() + i);
+					_client_socket.erase(_client_socket.begin() + i);
 				}
 				else
 				{
@@ -170,10 +170,10 @@ void Server::connectionServer()
 					std::pair<std::string, std::vector<std::string> > parsedData = parse(incomingMessage);
 					std::string command = parsedData.first;
 					std::vector<std::string> args = parsedData.second;
-					if (commandMap.find(command) != commandMap.end())
+					if (_commandMap.find(command) != _commandMap.end())
 					{
-						ICommand *commandHandler = commandMap[command];
-						commandHandler->execute(args, client_socket[i], *this);
+						ICommand *commandHandler = _commandMap[command];
+						commandHandler->execute(args, _client_socket[i], *this);
 					}
 					send(sd, buffer, strlen(buffer), 0); // pour avoir le echo back
 				}

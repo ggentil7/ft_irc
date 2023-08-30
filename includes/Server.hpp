@@ -39,15 +39,15 @@ class ICommand;
 class Server
 {
 private:
-	std::map<std::string, Client*>	clients; //keyed by client nickname or ID
-	std::map<std::string, Channel*>	channels; //keyed by channel name
-	int								_port;
-	int								_socket;
-	bool							_validPassword;
-	struct sockaddr_in				_addr;
-	std::string						_password;
-	std::vector<int> 				client_socket;
-	std::map<std::string, ICommand*>	commandMap;
+	int									_port;
+	std::string							_password;
+	int									_socket;
+	bool								_validPassword;
+	struct sockaddr_in					_addr;
+	std::vector<int> 					_client_socket;
+	std::map<int, Client*>				_clients;		// keyed by fd
+	std::map<std::string, Channel*>		_channels;		//keyed by channel name
+	std::map<std::string, ICommand*>	_commandMap;	// keyed by command name
 
 public:
 	Server();

@@ -5,7 +5,10 @@
 #include "../includes/NickCommand.hpp"
 #include "../includes/Server.hpp"
 
-Client::Client() {}
+Client::Client() : _isOperator(false)
+{
+	(void) _isOperator; //!
+}
 
 Client::Client(Client const &src)
 {
