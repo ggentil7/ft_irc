@@ -191,6 +191,9 @@ void Server::connectionServer()
 				int valread;
 				if ((valread = read(sd, buffer, 1024)) == 0)
 				{
+					// getpeername(sd, (struct sockaddr *)&_addr, &addrlen); // a supprimer car pour debug
+					// std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << " port = " << ntohs(_addr.sin_port) << std::endl;
+
 					close(sd);
 					_client_socket.erase(_client_socket.begin() + i);
 				}
