@@ -4,8 +4,6 @@
 #include "ICommand.hpp"
 #include "Server.hpp"
 
-class Server;
-
 class JoinCommand : public ICommand {
 public:
 	virtual ~JoinCommand() {}
