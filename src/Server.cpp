@@ -8,6 +8,7 @@ Server::Server() : _port(0), _socket(0), _validPassword(false)
 	_commandMap["PASS"] = new PassCommand();
 	_commandMap["NICK"] = new NickCommand();
 	_commandMap["JOIN"] = new JoinCommand();
+	_commandMap["INVITE"] = new InvitCommand();
 }
 
 // Server::Server(int port, std::string password) + validPassowrd a initialiser false
@@ -56,6 +57,11 @@ std::map<int, Client*>	Server::getClients()
 	return (this->_clients);
 }
 
+std::map<std::string, Channel*> Server::getChannel()
+{
+	return (this->_channels)
+}
+
 std::string Server::getPassword()
 {
 	return (_password);
@@ -92,14 +98,12 @@ void Server::createSocket()
 	if (bind(_socket, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
 	{
 		std::cerr << "bind failed" << std::endl;
-		;
 		exit(EXIT_FAILURE);
 	}
 
 	if (listen(_socket, BACK_LOG) < 0)
 	{
 		std::cerr << "listen failed" << std::endl;
-		;
 		exit(EXIT_FAILURE);
 	}
 }
@@ -161,9 +165,6 @@ void Server::connectionServer()
 				int valread;
 				if ((valread = read(sd, buffer, 1024)) == 0)
 				{
-					// getpeername(sd, (struct sockaddr *)&_addr, &addrlen); // a supprimer car pour debug
-					// std::cout << "ip = " << inet_ntoa(_addr.sin_addr) << " port = " << ntohs(_addr.sin_port) << std::endl;
-
 					close(sd);
 					_client_socket.erase(_client_socket.begin() + i);
 				}
