@@ -33,7 +33,7 @@ Server::~Server()
 {
 }
 
-void	Server::setPort(int port)
+void Server::setPort(int port)
 {
 	_port = port;
 }
@@ -137,6 +137,11 @@ void Server::connectionServer()
 
 			// Ajout du nouveau client dans le vector
 			client_socket.push_back(new_socket_client);
+
+			// Here, you can send the welcome messages to the new client
+			std::string clientNick = "some_default_nick"; // You'll probably have a way to get the client's chosen nick
+			std::string welcomeMsg = ":YourServer 001 " + clientNick + " :Welcome to the IRC Network " + clientNick + "\r\n";
+			send(new_socket_client, welcomeMsg.c_str(), welcomeMsg.length(), 0);
 		}
 
 		for (size_t i = 0; i < client_socket.size(); i++)
@@ -156,13 +161,18 @@ void Server::connectionServer()
 				else
 				{
 					buffer[valread] = '\0';
-					std::string					incomingMessage = std::string(buffer);
-					std::pair<std::string, std::vector<std::string> >	parsedData = parse(incomingMessage);
+					if (std::string(buffer).find("CAP LS") != std::string::npos)
+					{
+						std::string capResponse = ":YourServer CAP * LS :\r\n";
+						send(sd, capResponse.c_str(), capResponse.length(), 0);
+					}
+					std::string incomingMessage = std::string(buffer);
+					std::pair<std::string, std::vector<std::string> > parsedData = parse(incomingMessage);
 					std::string command = parsedData.first;
 					std::vector<std::string> args = parsedData.second;
 					if (commandMap.find(command) != commandMap.end())
 					{
-						ICommand*	commandHandler = commandMap[command];
+						ICommand *commandHandler = commandMap[command];
 						commandHandler->execute(args, client_socket[i], *this);
 					}
 					send(sd, buffer, strlen(buffer), 0); // pour avoir le echo back
@@ -172,7 +182,7 @@ void Server::connectionServer()
 	}
 }
 
-std::pair<std::string, std::vector<std::string> >	Server::parse(std::string message)
+std::pair<std::string, std::vector<std::string> > Server::parse(std::string message)
 {
 	std::istringstream iss(message);
 	std::string token, prefix, command;
@@ -182,7 +192,7 @@ std::pair<std::string, std::vector<std::string> >	Server::parse(std::string mess
 	if (token[0] == ':')
 	{
 		prefix = token.substr(1); // Remove the leading ':'
-		iss >> command;		   // The next token should be the command
+		iss >> command;			  // The next token should be the command
 	}
 	else
 	{

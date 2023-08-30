@@ -19,6 +19,7 @@
 #include <cerrno>
 #include <vector>
 #include <sstream>
+#include <cstdlib>
 
 #define IP_SERVER "127.0.0.1"
 #define BACK_LOG 30
@@ -29,6 +30,7 @@
 #include "ICommand.hpp"
 #include "JoinCommand.hpp"
 #include "NickCommand.hpp"
+#include "PassCommand.hpp"
 
 class Client;
 class Channel;
