@@ -66,7 +66,7 @@ std::map<int, Client *> Server::getClients()
 
 std::map<std::string, Channel*> Server::getChannel()
 {
-	return (this->_channels)
+	return (this->_channels);
 }
 
 std::map<std::string, ICommand *> Server::getCommands()
