@@ -18,7 +18,6 @@ private:
 	std::string			_name;
 	std::string			_topic;
 	std::list<Client*>	_members;
-	std::list<Client*>	_operators;
 	unsigned int 		_mode;
 
 	enum ModeFlags
@@ -39,6 +38,8 @@ public:
 	void	addClient(int fd);
 	void	removeClient(int fd);
 	void	broadcastMessage(const std::string &message);
+
+	std::list<Client*>	getMembers() const;
 
 	// Check if a specific mode is set
 	bool has_mode(ModeFlags flag) const

@@ -33,3 +33,8 @@ void	Channel::broadcastMessage(const std::string &message)
 {
 	(void) message;
 }
+
+std::list<Client*>	Channel::getMembers() const
+{
+	return (_members);
+}

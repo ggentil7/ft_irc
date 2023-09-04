@@ -2,18 +2,25 @@
 #include "../includes/Client.hpp"
 #include "../includes/ICommand.hpp"
 #include "../includes/Server.hpp"
+#include "../includes/CapCommand.hpp"
+#include "../includes/InviteCommand.hpp"
+#include "../includes/ModeCommand.hpp"
+#include "../includes/WhoisCommand.hpp"
+#include "../includes/NickCommand.hpp"
+#include "../includes/PrivmsgCommand.hpp"
 
 Server::Server() : _port(0), _socket(0), _validPassword(false)
 {
 	_commandMap["PASS"] = new PassCommand();
 	_commandMap["NICK"] = new NickCommand();
 	_commandMap["JOIN"] = new JoinCommand();
-	_commandMap["INVITE"] = new InvitCommand();
+	_commandMap["CAP"] = new CapCommand();
+	_commandMap["INVITE"] = new InviteCommand();
+	_commandMap["MODE"] = new ModeCommand();
+	_commandMap["PASS"] = new PassCommand();
+	_commandMap["WHOIS"] = new WhoisCommand();
+	_commandMap["PRIVMSG"] = new PrivmsgCommand();
 }
-
-// Server::Server(int port, std::string password) + validPassowrd a initialiser false
-// {
-// }
 
 Server::Server(Server const &src)
 {
@@ -33,7 +40,7 @@ Server &Server::operator=(Server const &src)
 
 Server::~Server()
 {
-	for (std::map<std::string, ICommand*>::iterator it = _commandMap.begin(); it != _commandMap.end(); ++it)
+	for (std::map<std::string, ICommand *>::iterator it = _commandMap.begin(); it != _commandMap.end(); ++it)
 		delete it->second;
 }
 
@@ -52,7 +59,7 @@ int Server::getSocket()
 	return (_socket);
 }
 
-std::map<int, Client*>	Server::getClients()
+std::map<int, Client *> Server::getClients()
 {
 	return (this->_clients);
 }
@@ -60,6 +67,11 @@ std::map<int, Client*>	Server::getClients()
 std::map<std::string, Channel*> Server::getChannel()
 {
 	return (this->_channels)
+}
+
+std::map<std::string, ICommand *> Server::getCommands()
+{
+	return (this->_commandMap);
 }
 
 std::string Server::getPassword()
@@ -152,9 +164,42 @@ void Server::connectionServer()
 
 			// Here, you can send the welcome messages to the new client
 			_clients[new_socket_client] = new Client();
-			_clients[new_socket_client]->setNickname("default_nick");
-			std::string welcomeMsg = ":YourServer 001 " + this->_clients[_client_socket.back()]->getNickname() + " :Welcome to the IRC Network " + this->_clients[new_socket_client]->getNickname() + "\r\n";
+			_clients[new_socket_client]->setNickname("default_nick"); //? use config file
+
+			std::string nick = this->_clients[_client_socket.back()]->getNickname();
+
+			// Welcome Message (RPL_WELCOME)
+			std::string welcomeMsg = ":ft_irc 001 " + nick + " :Welcome to the IRC Network " + nick + "\r\n";
 			send(_client_socket.back(), welcomeMsg.c_str(), welcomeMsg.length(), 0);
+
+			// Your Host (RPL_YOURHOST)
+			std::string yourHostMsg = ":ft_irc 002 " + nick + " :Your host is ft_irc, running version ircd-2.10.3\r\n";
+			send(_client_socket.back(), yourHostMsg.c_str(), yourHostMsg.length(), 0);
+
+			// Send Server Created
+			std::string createdMsg = ":ft_irc 003 " + nick + " :This server was created Tue Nov 3 2020 at 12:34:56 PST\r\n";
+			send(_client_socket.back(), createdMsg.c_str(), createdMsg.length(), 0);
+
+			// Send My Info
+			std::string myInfoMsg = ":ft_irc 004 " + nick + " ft_irc ircd-2.10.3\r\n";
+			send(_client_socket.back(), myInfoMsg.c_str(), myInfoMsg.length(), 0);
+
+			// Send CAP LS
+			std::string capLSMsg = ":ft_irc CAP * LS :multi-prefix\r\n";
+			send(_client_socket.back(), capLSMsg.c_str(), capLSMsg.length(), 0);
+
+			std::string capEndMsg = "CAP * END\r\n";
+			send(new_socket_client, capEndMsg.c_str(), capEndMsg.length(), 0);
+
+			// Send MOTD
+			std::string motdMsg = ":ft_irc 372 " + nick + " :- Welcome to ft_irc!\r\n";
+			send(_client_socket.back(), motdMsg.c_str(), motdMsg.length(), 0);
+			std::string endMOTDMsg = ":ft_irc 376 " + nick + " :End of MOTD command\r\n";
+			send(_client_socket.back(), endMOTDMsg.c_str(), endMOTDMsg.length(), 0);
+
+			// Send Initial Modes
+			std::string modeAckMsg = ":ft_irc 221 " + nick + " +i\r\n";
+			send(_client_socket.back(), modeAckMsg.c_str(), modeAckMsg.length(), 0);
 		}
 
 		for (size_t i = 0; i < _client_socket.size(); i++)
@@ -171,12 +216,8 @@ void Server::connectionServer()
 				else
 				{
 					buffer[valread] = '\0';
-					if (std::string(buffer).find("CAP LS") != std::string::npos)
-					{
-						std::string capResponse = ":YourServer CAP * LS :\r\n";
-						send(sd, capResponse.c_str(), capResponse.length(), 0);
-					}
 					std::string incomingMessage = std::string(buffer);
+					std::cout << "Client: " << incomingMessage;
 					std::pair<std::string, std::vector<std::string> > parsedData = parse(incomingMessage);
 					std::string command = parsedData.first;
 					std::vector<std::string> args = parsedData.second;
@@ -237,15 +278,8 @@ bool Server::isNickInUse(const std::string &nick)
 {
 	// Check if the nickname is already in use
 	// Return true if it is, false otherwise
-	(void) nick;
+	(void)nick;
 	return (false);
-}
-
-void Server::setNick(const std::string &nick, int client_fd)
-{
-	// Set the new nickname
-	(void) nick;
-	(void) client_fd;
 }
 
 void Server::sendReply(const std::string &message, int client_fd)
@@ -260,11 +294,39 @@ void Server::sendReply(const std::string &message, int client_fd)
 	}
 }
 
-/*
-// cleanup when a client disconnects
-int client_fd = // the client's file descriptor
-if (this->_clients.find(client_fd) != this->_clients.end()) {
-    delete this->_clients[client_fd];
-    this->_clients.erase(client_fd);
+bool Server::sendMessage(const std::string &recipient, const std::string &message, Client *sender)
+{
+	// Format the message according to IRC standards
+	std::string formattedMessage = ":" + sender->getNickname() + "!" + sender->getUsername() + "@" + sender->getHostname() + " PRIVMSG " + recipient + " :" + message + "\r\n";
+
+	// Check if the recipient is a channel
+	if (_channels.find(recipient) != _channels.end())
+	{
+		std::list<Client *> members = _channels[recipient]->getMembers();
+		for (std::list<Client *>::iterator it = members.begin(); it != members.end(); ++it)
+		{
+			// Do not send the message back to the sender
+			if ((*it)->getFd() != sender->getFd())
+			{
+				send((*it)->getFd(), formattedMessage.c_str(), formattedMessage.length(), 0);
+			}
+		}
+		return true;
+	}
+	// Check if the recipient is a client
+	else
+	{
+		for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+		{
+			if (it->second->getNickname() == recipient || it->second->getUsername() == recipient)
+			{
+				std::cout << "Sending to : " << _clients[it->first]->getNickname() << std::endl;  // Debugging output
+				std::cout << "Formatted Message: " << formattedMessage << std::endl;
+				send(it->first, formattedMessage.c_str(), formattedMessage.length(), 0);
+				return true;
+			}
+		}
+	}
+	// The recipient does not exist
+	return false;
 }
-*/

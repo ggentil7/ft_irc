@@ -2,7 +2,13 @@
 
 void NickCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
-	std::cout << "NickCommand executed" << std::endl; //! debug
+	std::cout << "Server: NICK ";
+	std::vector<std::string> newArgs(args);
+	for (std::vector<std::string>::iterator it = newArgs.begin(); it != newArgs.end(); ++it) {
+		std::cout << *it << ' ';
+	}
+	std::cout << std::endl;
+
 	if (args.size() < 1)
 	{
 		server.sendReply("ERR_NONICKNAMEGIVEN :No nickname given", client_fd);
@@ -12,15 +18,16 @@ void NickCommand::execute(const std::vector<std::string> &args, int client_fd, S
 	std::string	oldNick = server.getClients()[client_fd]->getNickname();
 	std::string newNick = args[0];
 
-	// Check if the nickname is already in use
+	// Check if the nickname is already in use //! TODO
 	if (server.isNickInUse(newNick))
 	{
 		server.sendReply("ERR_NICKNAMEINUSE " + newNick + " :Nickname is already in use.", client_fd);
 		return;
 	}
 	// If the nickname is valid and not in use, set it
-	server.setNick(newNick, client_fd);
+	server.getClients()[client_fd]->setNickname(newNick);
 
 	// Send a reply to confirm the change of nickname
-	server.sendReply("RPL_NICK " + newNick + " :Nickname changed.", client_fd);
+	std::string	reply = ":" + oldNick + "!~username@host NICK :" + newNick;
+	server.sendReply(reply, client_fd);
 }
