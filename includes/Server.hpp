@@ -31,6 +31,7 @@
 #include "JoinCommand.hpp"
 #include "NickCommand.hpp"
 #include "PassCommand.hpp"
+#include "InviteCommand.hpp"
 
 class Client;
 class Channel;
@@ -60,6 +61,7 @@ public:
 	int	 		getPort();
 	int	 		getSocket();
 	std::map<int, Client*>	getClients();
+	std::map<std::string, Channel*> getChannel();
 	std::map<std::string, ICommand*>	getCommands();
 
 	std::string getPassword();

@@ -64,6 +64,11 @@ std::map<int, Client *> Server::getClients()
 	return (this->_clients);
 }
 
+std::map<std::string, Channel*> Server::getChannel()
+{
+	return (this->_channels)
+}
+
 std::map<std::string, ICommand *> Server::getCommands()
 {
 	return (this->_commandMap);
@@ -105,14 +110,12 @@ void Server::createSocket()
 	if (bind(_socket, (struct sockaddr *)&_addr, sizeof(_addr)) < 0)
 	{
 		std::cerr << "bind failed" << std::endl;
-		;
 		exit(EXIT_FAILURE);
 	}
 
 	if (listen(_socket, BACK_LOG) < 0)
 	{
 		std::cerr << "listen failed" << std::endl;
-		;
 		exit(EXIT_FAILURE);
 	}
 }
