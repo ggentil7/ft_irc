@@ -2,7 +2,15 @@
 
 void InviteCommand::execute(const std::vector<std::string>& args, int socket, Server& server)
 {
-    std::cout << "InviteCommand executed" << std::endl; //! debug
+    std::cout << "Server: INVITE ";
+	std::vector<std::string> newArgs(args);
+	for (std::vector<std::string>::iterator it = newArgs.begin(); it != newArgs.end(); ++it)
+	{
+		std::cout << *it << ' ';
+	}
+	std::cout << std::endl;
+	
+	std::cout << "InviteCommand executed" << std::endl; //! debug
     if (args.size() < 2)
     {
         server.sendReply(":(nom du serveur) 461 " + server.getClients()[client_fd]->getNickname() + " INVITE :Not enough parameters", client_fd);
