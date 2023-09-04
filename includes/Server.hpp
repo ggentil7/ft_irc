@@ -75,6 +75,11 @@ public:
 	bool	isNickInUse(const std::string& nick);
 	void	sendReply(const std::string& message, int client_fd);
 	bool	sendMessage(const std::string &recipient, const std::string &message, Client *sender);
+
+	Client* getClientByFD(int fd);
+
 };
 
 #endif
+
+

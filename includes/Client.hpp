@@ -20,6 +20,7 @@ private:
 	std::string	_hostname;
 	std::string	_realname;
 	bool		_isOperator;
+	std::vector<std::string> _invitations;
 public:
 	Client();
 	Client(Client const &src);
@@ -37,6 +38,10 @@ public:
 	void	setUsername(std::string username);
 	void	setHostname(std::string hostname);
 	void	setRealname(std::string realname);
+
+	void addInvite(const std::string &channelName);
+	void removeInvite(const std::string& channelName);
+	bool hasInvite(const std::string &channelName);
 };
 
 #endif
