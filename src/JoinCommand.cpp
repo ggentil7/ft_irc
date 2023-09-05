@@ -10,10 +10,10 @@ void JoinCommand::execute(const std::vector<std::string>& args, int client_fd, S
 	}
 	std::cout << std::endl;
 
-
+  
 	if (args.size() < 1)
 	{
-		std::string errMsg = ":YourServer 461 JOIN :Not enough parameters";
+		std::string errMsg = ":ft_irc 461 JOIN :Not enough parameters"; // ERR_NEEDMOREPARAMS
 		server.sendReply(errMsg, client_fd);
 		return;
 	}

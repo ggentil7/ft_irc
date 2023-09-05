@@ -2,26 +2,26 @@
 
 void NickCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
-	std::cout << "Server: NICK ";
-	std::vector<std::string> newArgs(args);
-	for (std::vector<std::string>::iterator it = newArgs.begin(); it != newArgs.end(); ++it) {
-		std::cout << *it << ' ';
+	if (server.getClients()[client_fd]->getRegistration() == false)
+	{
+		server.sendReply(":ft_irc 451 :You have not registered", client_fd); // ERR_NOTREGISTERED
+		server.sendReply("ERROR :Password required /connect localhost port password", client_fd);
+		return;
 	}
-	std::cout << std::endl;
-
 	if (args.size() < 1)
 	{
-		server.sendReply("ERR_NONICKNAMEGIVEN :No nickname given", client_fd);
+		server.sendReply(":ft_irc 431 :No nickname given", client_fd); // ERR_NONICKNAMEGIVEN
 		return;
 	}
 
 	std::string	oldNick = server.getClients()[client_fd]->getNickname();
 	std::string newNick = args[0];
 
-	// Check if the nickname is already in use //! TODO
+	std::cout << "oldnick = " << oldNick << std::endl << "newnick = " << newNick << std::endl;
+
 	if (server.isNickInUse(newNick))
 	{
-		server.sendReply("ERR_NICKNAMEINUSE " + newNick + " :Nickname is already in use.", client_fd);
+		server.sendReply(":ft_irc 433 " + newNick + " :Nickname is already in use", client_fd); // ERR_NICKNAMEINUSE
 		return;
 	}
 	// If the nickname is valid and not in use, set it

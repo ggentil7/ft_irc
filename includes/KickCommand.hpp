@@ -1,11 +1,10 @@
-// PassCommand.hpp
-#ifndef PASSCOMMAND_HPP
-#define PASSCOMMAND_HPP
+#ifndef KICKCOMMAND_HPP
+#define KICKCOMMAND_HPP
 
 #include "ICommand.hpp"
 #include "Server.hpp"
 
-class PassCommand : public ICommand
+class KickCommand : public ICommand
 {
 public:
 	void execute(const std::vector<std::string> &args, int socket, Server& server);

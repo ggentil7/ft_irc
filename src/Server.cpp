@@ -8,16 +8,33 @@
 #include "../includes/WhoisCommand.hpp"
 #include "../includes/NickCommand.hpp"
 #include "../includes/PrivmsgCommand.hpp"
+#include "../includes/UserCommand.hpp"
+#include "../includes/KickCommand.hpp"
+#include "../includes/TopicCommand.hpp"
 
-Server::Server() : _port(0), _socket(0), _validPassword(false)
+# define DEFAULT "\001\033[0;39m\002"
+# define GRAY "\001\033[1;90m\002"
+# define RED "\001\033[1;91m\002"
+# define GREEN "\001\033[1;92m\002"
+# define YELLOW "\001\033[1;93m\002"
+# define BLUE "\001\033[1;94m\002"
+# define MAGENTA "\001\033[1;95m\002"
+# define CYAN "\001\033[1;96m\002"
+# define WHITE "\001\033[0;97m\002"
+
+Server::Server() {}
+
+Server::Server(int port, std::string password) : _port(port), _password(password),_socket(0), _validPassword(false)
 {
+	_commandMap["CAP"] = new CapCommand();
 	_commandMap["PASS"] = new PassCommand();
 	_commandMap["NICK"] = new NickCommand();
+	_commandMap["USER"] = new UserCommand();
 	_commandMap["JOIN"] = new JoinCommand();
-	_commandMap["CAP"] = new CapCommand();
+	_commandMap["KICK"] = new KickCommand();
 	_commandMap["INVITE"] = new InviteCommand();
+	_commandMap["TOPIC"] = new TopicCommand();
 	_commandMap["MODE"] = new ModeCommand();
-	_commandMap["PASS"] = new PassCommand();
 	_commandMap["WHOIS"] = new WhoisCommand();
 	_commandMap["PRIVMSG"] = new PrivmsgCommand();
 }
@@ -64,7 +81,7 @@ std::map<int, Client *> Server::getClients()
 	return (this->_clients);
 }
 
-std::map<std::string, Channel*> Server::getChannel()
+std::map<std::string, Channel*> Server::getChannels()
 {
 	return (this->_channels);
 }
@@ -77,6 +94,11 @@ std::map<std::string, ICommand *> Server::getCommands()
 std::string Server::getPassword()
 {
 	return (_password);
+}
+
+void	Server::setPassword(std::string password)
+{
+	_password = password;
 }
 
 bool Server::getValidPassword()
@@ -162,44 +184,18 @@ void Server::connectionServer()
 			// Ajout du nouveau client dans le vector
 			_client_socket.push_back(new_socket_client);
 
-			// Here, you can send the welcome messages to the new client
+			std::string	defaultNickBase = "guest";
+			std::string	defaultNick;
+			int	uniqueID = 0;
+
+			do
+				defaultNick = defaultNickBase + std::to_string(uniqueID++);
+			while (isNickInUse(defaultNick));
+
 			_clients[new_socket_client] = new Client();
-			_clients[new_socket_client]->setNickname("default_nick"); //? use config file
+			_clients[new_socket_client]->setNickname(defaultNick);
 
 			std::string nick = this->_clients[_client_socket.back()]->getNickname();
-
-			// Welcome Message (RPL_WELCOME)
-			std::string welcomeMsg = ":ft_irc 001 " + nick + " :Welcome to the IRC Network " + nick + "\r\n";
-			send(_client_socket.back(), welcomeMsg.c_str(), welcomeMsg.length(), 0);
-
-			// Your Host (RPL_YOURHOST)
-			std::string yourHostMsg = ":ft_irc 002 " + nick + " :Your host is ft_irc, running version ircd-2.10.3\r\n";
-			send(_client_socket.back(), yourHostMsg.c_str(), yourHostMsg.length(), 0);
-
-			// Send Server Created
-			std::string createdMsg = ":ft_irc 003 " + nick + " :This server was created Tue Nov 3 2020 at 12:34:56 PST\r\n";
-			send(_client_socket.back(), createdMsg.c_str(), createdMsg.length(), 0);
-
-			// Send My Info
-			std::string myInfoMsg = ":ft_irc 004 " + nick + " ft_irc ircd-2.10.3\r\n";
-			send(_client_socket.back(), myInfoMsg.c_str(), myInfoMsg.length(), 0);
-
-			// Send CAP LS
-			std::string capLSMsg = ":ft_irc CAP * LS :multi-prefix\r\n";
-			send(_client_socket.back(), capLSMsg.c_str(), capLSMsg.length(), 0);
-
-			std::string capEndMsg = "CAP * END\r\n";
-			send(new_socket_client, capEndMsg.c_str(), capEndMsg.length(), 0);
-
-			// Send MOTD
-			std::string motdMsg = ":ft_irc 372 " + nick + " :- Welcome to ft_irc!\r\n";
-			send(_client_socket.back(), motdMsg.c_str(), motdMsg.length(), 0);
-			std::string endMOTDMsg = ":ft_irc 376 " + nick + " :End of MOTD command\r\n";
-			send(_client_socket.back(), endMOTDMsg.c_str(), endMOTDMsg.length(), 0);
-
-			// Send Initial Modes
-			std::string modeAckMsg = ":ft_irc 221 " + nick + " +i\r\n";
-			send(_client_socket.back(), modeAckMsg.c_str(), modeAckMsg.length(), 0);
 		}
 
 		for (size_t i = 0; i < _client_socket.size(); i++)
@@ -207,26 +203,47 @@ void Server::connectionServer()
 			int sd = _client_socket[i];
 			if (FD_ISSET(sd, &readfds))
 			{
+				//TODO handle CTRL-D
+				std::map<int, std::string> clientBuffers; // Store buffer for each client
+
 				int valread;
 				if ((valread = read(sd, buffer, 1024)) == 0)
 				{
+					// Handle disconnection logic
 					close(sd);
 					_client_socket.erase(_client_socket.begin() + i);
+					clientBuffers.erase(sd); // Remove the buffer for the disconnected client
 				}
 				else
 				{
 					buffer[valread] = '\0';
-					std::string incomingMessage = std::string(buffer);
-					std::cout << "Client: " << incomingMessage;
-					std::pair<std::string, std::vector<std::string> > parsedData = parse(incomingMessage);
-					std::string command = parsedData.first;
-					std::vector<std::string> args = parsedData.second;
-					if (_commandMap.find(command) != _commandMap.end())
+					clientBuffers[sd] += std::string(buffer); // Append new data to the existing buffer
+
+					size_t pos = 0;
+					std::string &incomingBuffer = clientBuffers[sd]; // Reference to the buffer for easier access
+
+					// Loop to find each command separated by \r\n
+					while ((pos = incomingBuffer.find("\r\n")) != std::string::npos)
 					{
-						ICommand *commandHandler = _commandMap[command];
-						commandHandler->execute(args, _client_socket[i], *this);
+						std::string singleCommand = incomingBuffer.substr(0, pos);
+
+						if (singleCommand.substr(0, 4) != "PING" && singleCommand.substr(0, 4) != "PONG")
+						{
+							std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand << std::endl;
+						}
+
+						std::pair<std::string, std::vector<std::string> > parsedData = parse(singleCommand);
+						std::string command = parsedData.first;
+						std::vector<std::string> args = parsedData.second;
+						if (_commandMap.find(command) != _commandMap.end())
+						{
+							ICommand *commandHandler = _commandMap[command];
+							commandHandler->execute(args, _client_socket[i], *this);
+						}
+
+						// Remove the processed command from the buffer
+						incomingBuffer.erase(0, pos + 2);
 					}
-					// send(sd, buffer, strlen(buffer), 0); // pour avoir le echo back
 				}
 			}
 		}
@@ -276,9 +293,15 @@ std::pair<std::string, std::vector<std::string> > Server::parse(std::string mess
 
 bool Server::isNickInUse(const std::string &nick)
 {
-	// Check if the nickname is already in use
-	// Return true if it is, false otherwise
-	(void)nick;
+	// Iterate through the map of clients
+	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		// Check if the nickname is already in use
+		if (it->second->getNickname() == nick)
+		{
+			return true; // Nickname is in use
+		}
+	}
 	return (false);
 }
 
@@ -287,6 +310,7 @@ void Server::sendReply(const std::string &message, int client_fd)
 	// Send the IRC reply back to the client
 	std::string formattedMessage = message + "\r\n";
 	const char *cMessage = formattedMessage.c_str();
+	std::cout << GREEN <<"Server: [" << this->_socket << "->" << client_fd << "(" << _clients[client_fd]->getNickname() << ")" << "] " << cMessage;
 	if (send(client_fd, cMessage, std::strlen(cMessage), 0) == -1)
 	{
 		// Log the error or handle it appropriately
@@ -308,7 +332,9 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 			// Do not send the message back to the sender
 			if ((*it)->getFd() != sender->getFd())
 			{
-				send((*it)->getFd(), formattedMessage.c_str(), formattedMessage.length(), 0);
+				std::cout << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << (*it)->getFd() << "(" << (*it)->getNickname() << ")" << "] " << formattedMessage;
+				if (send((*it)->getFd(), formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
+					std::cerr << "Failed to send message to client: " << (*it)->getFd() << std::endl;
 			}
 		}
 		return true;
@@ -322,7 +348,14 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 			{
 				std::cout << "Sending to : " << _clients[it->first]->getNickname() << std::endl;  // Debugging output
 				std::cout << "Formatted Message: " << formattedMessage << std::endl;
-				send(it->first, formattedMessage.c_str(), formattedMessage.length(), 0);
+				for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+				{
+					std::cout << "Checking client with FD: " << it->first << " and Nickname: " << it->second->getNickname() << std::endl;
+					// ... rest of your code
+				}
+				std::cout << "send is to " << it->first << std::endl;
+				if (send(it->first, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
+					std::cerr << "Failed to send message to client: " << it->first << std::endl;
 				return true;
 			}
 		}
