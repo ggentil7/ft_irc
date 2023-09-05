@@ -5,9 +5,9 @@
 #include "../includes/NickCommand.hpp"
 #include "../includes/Server.hpp"
 
-Client::Client() : _nickname("default_nick"), _username("default_user"), _hostname("default_host"), _realname("default_real"), _isOperator(false)
+Client::Client() : _nickname("default_nick"), _username("default_user"), _hostname("default_host"), _realname("default_real"), _isOperator(true), _isRegistered(false)
 {
-	(void) _isOperator; //!
+	(void)_isOperator; //! Not used yet
 }
 
 Client::Client(Client const &src)
@@ -22,52 +22,62 @@ Client &Client::operator=(Client const &rhs)
 
 Client::~Client() {}
 
-int	Client::getFd(void) const
+int Client::getFd(void) const
 {
 	return _fd;
 }
 
-std::string	Client::getNickname(void) const
+std::string Client::getNickname(void) const
 {
-    return _nickname;
+	return _nickname;
 }
 
-std::string	Client::getUsername(void) const
+std::string Client::getUsername(void) const
 {
-    return _username;
+	return _username;
 }
 
-std::string	Client::getHostname(void) const
+std::string Client::getHostname(void) const
 {
-    return _hostname;
+	return _hostname;
 }
 
-std::string	Client::getRealname(void) const
+std::string Client::getRealname(void) const
 {
-    return _realname;
+	return _realname;
 }
 
-void	Client::setFd(int fd)
+bool Client::getRegistration(void) const
+{
+	return _isRegistered;
+}
+
+void Client::setFd(int fd)
 {
 	this->_fd = fd;
 }
 
-void	Client::setNickname(std::string nickname)
+void Client::setNickname(std::string nickname)
 {
 	this->_nickname = nickname;
 }
 
-void	Client::setUsername(std::string username)
+void Client::setUsername(std::string username)
 {
 	this->_username = username;
 }
 
-void	Client::setHostname(std::string hostname)
+void Client::setHostname(std::string hostname)
 {
 	this->_hostname = hostname;
 }
 
-void	Client::setRealname(std::string realname)
+void Client::setRealname(std::string realname)
 {
 	this->_realname = realname;
+}
+
+void Client::setRegistration(bool registered)
+{
+	this->_isRegistered = registered;
 }

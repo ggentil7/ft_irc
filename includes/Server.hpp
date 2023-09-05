@@ -52,7 +52,7 @@ private:
 
 public:
 	Server();
-	// Server(int port, std::string password);
+	Server(int port, std::string password);
 	Server(Server const &src);
 	Server &operator=(Server const &src);
 	~Server();
@@ -60,11 +60,13 @@ public:
 	void 		setPort(int port);
 	int	 		getPort();
 	int	 		getSocket();
-	std::map<int, Client*>	getClients();
-	std::map<std::string, Channel*> getChannel();
+
+	std::map<int, Client*>				getClients();
+	std::map<std::string, Channel*>		getChannels();
 	std::map<std::string, ICommand*>	getCommands();
 
 	std::string getPassword();
+	void		setPassword(std::string password);
 	bool		getValidPassword();
 
 	void 		createSocket();

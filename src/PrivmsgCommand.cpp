@@ -2,21 +2,14 @@
 
 void PrivmsgCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
-	std::cout << "Server: PRIVMSG ";
-	std::vector<std::string> newArgs(args);
-	for (std::vector<std::string>::iterator it = newArgs.begin(); it != newArgs.end(); ++it) {
-		std::cout << *it << ' ';
-	}
-	std::cout << std::endl;
-
 	if (args.size() < 1)
 	{
-		server.sendReply(":No recipient given (PRIVMSG)", client_fd);
+		server.sendReply(":ft_irc 411 :No recipient given (PRIVMSG)", client_fd); // ERR_NORECIPIENT
 		return;
 	}
 	if (args.size() < 2)
 	{
-		server.sendReply(":No text to send", client_fd);
+		server.sendReply(":ft_irc 412 :No text to send", client_fd); // ERR_NOTEXTTOSEND
 		return;
 	}
 	std::string recipient = args[0];

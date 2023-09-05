@@ -20,6 +20,7 @@ private:
 	std::string	_hostname;
 	std::string	_realname;
 	bool		_isOperator;
+	bool		_isRegistered;
 public:
 	Client();
 	Client(Client const &src);
@@ -31,12 +32,14 @@ public:
 	std::string	getUsername(void) const;
 	std::string	getHostname(void) const;
 	std::string	getRealname(void) const;
+	bool		getRegistration(void) const;
 
 	void	setFd(int fd);
 	void	setNickname(std::string nickname);
 	void	setUsername(std::string username);
 	void	setHostname(std::string hostname);
 	void	setRealname(std::string realname);
+	void	setRegistration(bool registered);
 };
 
 #endif
