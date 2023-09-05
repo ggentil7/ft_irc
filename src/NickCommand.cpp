@@ -18,7 +18,7 @@ void NickCommand::execute(const std::vector<std::string> &args, int client_fd, S
 	std::string newNick = args[0];
 
 	std::cout << "oldnick = " << oldNick << std::endl << "newnick = " << newNick << std::endl;
-	// Check if the nickname is already in use //! TODO
+
 	if (server.isNickInUse(newNick))
 	{
 		server.sendReply(":ft_irc 433 " + newNick + " :Nickname is already in use", client_fd); // ERR_NICKNAMEINUSE
