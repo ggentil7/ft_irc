@@ -395,3 +395,8 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 	// The recipient does not exist
 	return false;
 }
+
+void Server::addChannel(const std::string& channelName, Channel* channel)
+{
+    _channels[channelName] = channel;
+}

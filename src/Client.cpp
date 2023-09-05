@@ -74,6 +74,7 @@ void Client::setRealname(std::string realname)
 	this->_realname = realname;
 }
 
+
 void Client::setRegistration(bool registered)
 {
 	this->_isRegistered = registered;

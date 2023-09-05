@@ -6,12 +6,14 @@
 #include <unistd.h>
 #include <list>
 #include <vector>
+#include <algorithm>
 
 #include "Client.hpp"
 #include "ICommand.hpp"
 #include "Server.hpp"
 
 class Client;
+class Server;
 
 class Channel
 {
@@ -21,6 +23,7 @@ private:
 	std::list<int>		_members;
 	std::list<int>		_operators;
 	int					_channelModes;
+	std::vector<Client *> _invitedUsers;
 
 public:
 	Channel();
@@ -30,7 +33,7 @@ public:
 
 	void	addClient(int fd);
 	void	removeClient(int fd);
-	void	broadcastMessage(const std::string &message);
+	void	broadcastMessage(const std::string &message, Server &server);
 
 	void	addMember(int client_fd);
 	void	addOperator(int client_fd);
@@ -53,6 +56,9 @@ public:
 		OPERATOR = 0x8,			// o
 		USER_LIMIT = 0x10		// l
 	};
+
+	void addInvitedUsers(Client *client);
+	bool isUserInvited(Client *client);
 };
 
 #endif

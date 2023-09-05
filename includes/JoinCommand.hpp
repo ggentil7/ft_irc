@@ -4,6 +4,8 @@
 #include "ICommand.hpp"
 #include "Server.hpp"
 
+class Server;
+
 class JoinCommand : public ICommand {
 public:
 	virtual ~JoinCommand() {}
@@ -11,4 +13,4 @@ public:
 	void execute(const std::vector<std::string>& args, int socket, Server& server);
 };
 
-#endif // JOINCOMMAND_HPP
+#endif

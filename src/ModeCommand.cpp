@@ -136,7 +136,7 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 
 		// Notify all channel members
 		std::string modeMessage = ":" + server.getClients()[client_fd]->getNickname() + " MODE " + target + " :" + mode;
-		channel->broadcastMessage(modeMessage);
+		channel->broadcastMessage(modeMessage, server);
 	}
 	else
 	{ // This is a user mode change
