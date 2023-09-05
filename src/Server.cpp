@@ -12,16 +12,6 @@
 #include "../includes/KickCommand.hpp"
 #include "../includes/TopicCommand.hpp"
 
-# define DEFAULT "\001\033[0;39m\002"
-# define GRAY "\001\033[1;90m\002"
-# define RED "\001\033[1;91m\002"
-# define GREEN "\001\033[1;92m\002"
-# define YELLOW "\001\033[1;93m\002"
-# define BLUE "\001\033[1;94m\002"
-# define MAGENTA "\001\033[1;95m\002"
-# define CYAN "\001\033[1;96m\002"
-# define WHITE "\001\033[0;97m\002"
-
 Server::Server() {}
 
 Server::Server(int port, std::string password) : _port(port), _password(password),_socket(0), _validPassword(false)
@@ -224,6 +214,7 @@ void Server::connectionServer()
 
 			_clients[new_socket_client] = new Client();
 			_clients[new_socket_client]->setNickname(defaultNick);
+			_clients[new_socket_client]->setFd(new_socket_client);
 
 			std::string nick = this->_clients[_client_socket.back()]->getNickname();
 		}
@@ -259,7 +250,7 @@ void Server::connectionServer()
 
 						if (singleCommand.substr(0, 4) != "PING" && singleCommand.substr(0, 4) != "PONG")
 						{
-							std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand << std::endl;
+							std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand  << DEFAULT << std::endl;
 						}
 
 						std::pair<std::string, std::vector<std::string> > parsedData = parse(singleCommand);
@@ -340,7 +331,7 @@ void Server::sendReply(const std::string &message, int client_fd)
 	// Send the IRC reply back to the client
 	std::string formattedMessage = message + "\r\n";
 	const char *cMessage = formattedMessage.c_str();
-	std::cout << GREEN <<"Server: [" << this->_socket << "->" << client_fd << "(" << _clients[client_fd]->getNickname() << ")" << "] " << cMessage;
+	std::cout << GREEN <<"Server: [" << this->_socket << "->" << client_fd << "(" << _clients[client_fd]->getNickname() << ")" << "] " << cMessage << DEFAULT;
 	if (send(client_fd, cMessage, std::strlen(cMessage), 0) == -1)
 	{
 		// Log the error or handle it appropriately
@@ -364,7 +355,7 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 			// Do not send the message back to the sender
 			if (recipientFd != sender->getFd())
 			{
-				std::cout << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << recipientFd << "(" << recipientClient->getNickname() << ")" << "] " << formattedMessage;
+				std::cout << GREEN << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << recipientFd << "(" << recipientClient->getNickname() << ")" << "] " << formattedMessage << DEFAULT;
 				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
 					std::cerr << "Failed to send message to client: " << recipientFd << std::endl;
 			}
