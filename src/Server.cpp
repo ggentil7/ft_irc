@@ -331,18 +331,3 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 	return false;
 }
 
-
-Client *Server::getClientByFD(int fd)
-{
-	std::map<int, Client*>::iterator it = _clients.find(fd);
-
-	if (it != _clients.end())
-		return it->second;
-	else
-		return NULL;
-}
-
-void Server::addInvite(const std::string &channelName)
-{
-	_invitations.push_back(channelName);
-}

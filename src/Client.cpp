@@ -72,21 +72,3 @@ void	Client::setRealname(std::string realname)
 	this->_realname = realname;
 }
 
-void Client::addInvite(const std::string &channelName)
-{
-	_invitations.push_back(channelName);
-}
-
-bool Client::hasInvite(const std::string &channelName)
-{
-	return std::find(_invitations.begin(), _invitations.end(), channelName) != _invitations.end();
-}
-
-void Client::removeInvite(const std::string &channelName)
-{
-	 std::vector<std::string>::iterator it = std::find(_invitations.begin(), _invitations.end(), channelName);
-        if (it != _invitations.end()) 
-		{
-            _invitations.erase(it);
-        }
-}

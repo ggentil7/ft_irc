@@ -20,14 +20,14 @@ private:
 	std::list<Client*>	_members;
 	unsigned int 		_mode;
 
-	enum ModeFlags
-	{
-		MODE_NONE = 0,		   // No special mode
-		MODE_INVITE = 1 << 0,  // Invite-only channel
-		MODE_TOPIC = 1 << 1,   // Only operators can change topic
-		MODE_KEY = 1 << 2,	   // Channel is password protected
-		MODE_OPERATOR = 1 << 3 // Client is an operator
-	};
+	// enum ModeFlags
+	// {
+	// 	MODE_NONE = 0,		   // No special mode
+	// 	MODE_INVITE = 1 << 0,  // Invite-only channel
+	// 	MODE_TOPIC = 1 << 1,   // Only operators can change topic
+	// 	MODE_KEY = 1 << 2,	   // Channel is password protected
+	// 	MODE_OPERATOR = 1 << 3 // Client is an operator
+	// };
 
 public:
 	Channel();
@@ -40,6 +40,15 @@ public:
 	void	broadcastMessage(const std::string &message);
 
 	std::list<Client*>	getMembers() const;
+
+	enum ModeFlags
+	{
+		MODE_NONE = 0,		   // No special mode
+		MODE_INVITE = 1 << 0,  // Invite-only channel
+		MODE_TOPIC = 1 << 1,   // Only operators can change topic
+		MODE_KEY = 1 << 2,	   // Channel is password protected
+		MODE_OPERATOR = 1 << 3 // Client is an operator
+	};
 
 	// Check if a specific mode is set
 	bool has_mode(ModeFlags flag) const

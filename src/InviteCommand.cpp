@@ -69,7 +69,6 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
    
      if (args.size() < 2)
     {
-        // Send an error message to the client for insufficient parameters
         server.sendReply(":server 461 " + server.getClients()[client_fd]->getNickname() + " INVITE :Not enough parameters", client_fd);
         return;
     }
@@ -97,7 +96,7 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
     }
 
     // Check if the channel exists
-    if (server.getChannels().find(channelName) == server.getChannels().end())
+    if (server.getChannel().find(channelName) == server.getChannel().end())
     {
         // Send an error message if the channel doesn't exist
         server.sendReply(":server 403 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :No such channel", client_fd);
@@ -105,7 +104,7 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
     }
 
     // Check if the channel is invite-only
-    if (!server.getChannels()[channelName]->has_mode(Channel::MODE_INVITE))
+    if (!server.getChannel()[channelName]->has_mode(Channel::MODE_INVITE))
     {
         // Send an error message if the channel isn't invite-only
         server.sendReply(":server 442 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :You're not on that channel", client_fd);
