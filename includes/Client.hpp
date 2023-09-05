@@ -19,8 +19,8 @@ private:
 	std::string	_username;
 	std::string	_hostname;
 	std::string	_realname;
-	bool		_isOperator;
 	bool		_isRegistered;
+	int			_clientModes;
 public:
 	Client();
 	Client(Client const &src);
@@ -40,6 +40,19 @@ public:
 	void	setHostname(std::string hostname);
 	void	setRealname(std::string realname);
 	void	setRegistration(bool registered);
+
+	void	setMode(int modeFlag, bool enable);
+	bool	isModeSet(int modeFlag) const;
+
+	enum Mode {
+		NONE			= 0,
+		AWAY			= 1 << 0,
+		INVISIBLE		= 1 << 1,
+		WALLOPS			= 1 << 2,
+		RESTRICTED		= 1 << 3,
+		OPERATOR		= 1 << 4,
+		SERVER_NOTICES	= 1 << 5
+	};
 };
 
 #endif

@@ -12,22 +12,15 @@
 #include "Server.hpp"
 
 class Client;
+
 class Channel
 {
 private:
 	std::string			_name;
 	std::string			_topic;
-	std::list<Client*>	_members;
-	unsigned int 		_mode;
-
-	enum ModeFlags
-	{
-		MODE_NONE = 0,		   // No special mode
-		MODE_INVITE = 1 << 0,  // Invite-only channel
-		MODE_TOPIC = 1 << 1,   // Only operators can change topic
-		MODE_KEY = 1 << 2,	   // Channel is password protected
-		MODE_OPERATOR = 1 << 3 // Client is an operator
-	};
+	std::list<int>		_members;
+	std::list<int>		_operators;
+	int					_channelModes;
 
 public:
 	Channel();
@@ -39,31 +32,27 @@ public:
 	void	removeClient(int fd);
 	void	broadcastMessage(const std::string &message);
 
-	std::list<Client*>	getMembers() const;
+	void	addMember(int client_fd);
+	void	addOperator(int client_fd);
+	bool	isMember(int client_fd);
+	bool	isOperator(int client_fd);
+	void	removeMember(int client_fd);
+	void	removeOperator(int client_fd);
 
-	// Check if a specific mode is set
-	bool has_mode(ModeFlags flag) const
-	{
-		return (_mode & flag) != 0;
-	}
+	std::list<int>	getMembers() const;
+	std::list<int>	getOperators() const;
 
-	// Enable a specific mode
-	void enable_mode(ModeFlags flag)
-	{
-		_mode |= flag;
-	}
+	void	setMode(int modeFlag, bool enable);
+	bool	isModeSet(int modeFlag) const;
 
-	// Disable a specific mode
-	void disable_mode(ModeFlags flag)
-	{
-		_mode &= ~flag;
-	}
-
-	// Toggle a specific mode (if it's on, turn it off; if it's off, turn it on)
-	void toggle_mode(ModeFlags flag)
-	{
-		_mode ^= flag;
-	}
+	enum Mode {
+		NONE = 0x0,
+		INVITE_ONLY = 0x1,		// i
+		TOPIC_PROTECTED = 0x2,	// t
+		KEY_PROTECTED = 0x4,	// k
+		OPERATOR = 0x8,			// o
+		USER_LIMIT = 0x10		// l
+	};
 };
 
 #endif
