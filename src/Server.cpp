@@ -8,6 +8,9 @@
 #include "../includes/WhoisCommand.hpp"
 #include "../includes/NickCommand.hpp"
 #include "../includes/PrivmsgCommand.hpp"
+#include "../includes/UserCommand.hpp"
+#include "../includes/KickCommand.hpp"
+#include "../includes/TopicCommand.hpp"
 
 # define DEFAULT "\001\033[0;39m\002"
 # define GRAY "\001\033[1;90m\002"
@@ -23,13 +26,15 @@ Server::Server() {}
 
 Server::Server(int port, std::string password) : _port(port), _password(password),_socket(0), _validPassword(false)
 {
+	_commandMap["CAP"] = new CapCommand();
 	_commandMap["PASS"] = new PassCommand();
 	_commandMap["NICK"] = new NickCommand();
+	_commandMap["USER"] = new UserCommand();
 	_commandMap["JOIN"] = new JoinCommand();
-	_commandMap["CAP"] = new CapCommand();
+	_commandMap["KICK"] = new KickCommand();
 	_commandMap["INVITE"] = new InviteCommand();
+	_commandMap["TOPIC"] = new TopicCommand();
 	_commandMap["MODE"] = new ModeCommand();
-	_commandMap["PASS"] = new PassCommand();
 	_commandMap["WHOIS"] = new WhoisCommand();
 	_commandMap["PRIVMSG"] = new PrivmsgCommand();
 }
