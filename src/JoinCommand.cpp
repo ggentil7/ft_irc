@@ -43,6 +43,7 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		server.addChannel(channelName, targetChannel);
 
 		targetChannel->addClient(client_fd);
+		targetChannel->addOperator(client_fd);
 
 		std::string createMsg = "Channel " + channelName + " created.";
 		server.sendReply(createMsg, client_fd);
