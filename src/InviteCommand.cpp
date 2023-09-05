@@ -88,8 +88,6 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
         }
     }
 
-    std::cout << "after check if the target client exist" << std::endl;
-
     if (!targetClient)
     {
         // Send an error message if the target client doesn't exist
@@ -105,8 +103,6 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
         return;
     }
 
-    std::cout << "after check if the channel exist" << std::endl;
-
     Channel* targetChannel = server.getChannel()[channelName];
 
     if (targetChannel && !targetChannel->has_mode(Channel::MODE_INVITE))
@@ -118,5 +114,6 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
     // Send the invite message to the target client
     server.sendReply(":" + server.getClients()[client_fd]->getNickname() + " INVITE " + targetNick + " :" + channelName, targetClient->getFd());
 
-    std::cout << "after send the invite message to target client" << std::endl;
+    //ajouter le user cible a la liste des utilisateurs invité au channel
+    targetChannel->addInvitedUsers(targetClient);
 }

@@ -12,7 +12,10 @@
 #include "ICommand.hpp"
 #include "Server.hpp"
 
+
 class Client;
+class Server;
+
 class Channel
 {
 private:
@@ -37,9 +40,9 @@ public:
 	Channel &operator=(Channel const &rhs);
 	~Channel();
 
-	void	addClient(int fd);
+	void	addClient(int fd, Server &server);
 	void	removeClient(int fd);
-	void	broadcastMessage(const std::string &message);
+	void	broadcastMessage(const std::string &message, Server &server);
 
 	void addInvitedUsers(Client *client);
 	bool isUserInvited(Client *client);

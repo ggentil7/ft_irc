@@ -331,3 +331,24 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 	return false;
 }
 
+Client *Server::getClientByFd(int fd)
+{
+	std::map<int, Client*>::iterator it = _clients.find(fd);
+
+    if (it != _clients.end()) 
+	{
+        return it->second;
+    }
+    return nullptr;
+}
+
+Channel *Server::getChannelByName(const std::string &channelName)
+{
+	std::map<std::string, Channel*>::iterator it = _channels.find(channelName);
+
+    if (it != _channels.end()) 
+	{
+        return it->second;
+    }
+    return nullptr;
+}
