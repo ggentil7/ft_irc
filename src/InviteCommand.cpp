@@ -66,26 +66,20 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
 	
 	std::cout << "InviteCommand executed" << std::endl; // debug
 
-    if (args.size() < 2)
+   
+     if (args.size() < 2)
     {
-        server.sendReply("ERR_NEEDMOREPARAMS :Need more params", client_fd);
-        return ;
+        // Send an error message to the client for insufficient parameters
+        server.sendReply(":server 461 " + server.getClients()[client_fd]->getNickname() + " INVITE :Not enough parameters", client_fd);
+        return;
     }
 
     std::string targetNick = args[0];
     std::string channelName = args[1];
 
-    Client *sourceClient = server.getClientByFD(client_fd);
-
-    if (!sourceClient)
-    {
-        server.sendReply("ERR_NOSUCHNICK :No such nick", client_fd);
-        return ;
-    }
-
-    Client *targetClient = NULL;
-
-    std::map<int, Client *>::iterator it;
+    // Check if the target client exists
+    Client* targetClient = nullptr;
+    std::map<int, Client*>::iterator it;
     for (it = server.getClients().begin(); it != server.getClients().end(); ++it)
     {
         if (it->second->getNickname() == targetNick)
@@ -97,12 +91,27 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
 
     if (!targetClient)
     {
-        server.sendReply("ERR_NOSUCHNICK :No such nick", client_fd);
-        return ;
+        // Send an error message if the target client doesn't exist
+        server.sendReply(":server 401 " + server.getClients()[client_fd]->getNickname() + " " + targetNick + " :No such nick/channel", client_fd);
+        return;
     }
 
-    server.sendReply(sourceClient->getNickname() + " has invited you to " + channelName, targetClient->getFd());
+    // Check if the channel exists
+    if (server.getChannels().find(channelName) == server.getChannels().end())
+    {
+        // Send an error message if the channel doesn't exist
+        server.sendReply(":server 403 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :No such channel", client_fd);
+        return;
+    }
 
-    server.addInvite(channelName);
+    // Check if the channel is invite-only
+    if (!server.getChannels()[channelName]->has_mode(Channel::MODE_INVITE))
+    {
+        // Send an error message if the channel isn't invite-only
+        server.sendReply(":server 442 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :You're not on that channel", client_fd);
+        return;
+    }
 
+    // Send the invite message to the target client
+    server.sendReply(":" + server.getClients()[client_fd]->getNickname() + " INVITE " + targetNick + " :" + channelName, targetClient->getFd());
 }
