@@ -13,10 +13,7 @@ void PassCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		return;
 	}
 	if (args[0] != server.getPassword())
-	{
 		server.sendReply(":ft_irc 464 " + server.getClients()[client_fd]->getNickname() + " :Password incorrect", client_fd);
-		server.sendReply("ERROR", client_fd);
-	}
 	else
 	{
 		server.getClients()[client_fd]->setRegistration(true);
