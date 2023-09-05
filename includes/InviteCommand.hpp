@@ -12,7 +12,7 @@ class InviteCommand : public ICommand {
 public:
 	virtual ~InviteCommand() {}
 
-	void execute(const std::vector<std::string>& args, int socket, Server& server);
+	void execute(const std::vector<std::string>& args, int client_fd, Server& server);
 };
 
 #endif 

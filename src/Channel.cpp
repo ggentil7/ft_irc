@@ -19,9 +19,19 @@ Channel &Channel::operator=(Channel const &rhs)
 
 Channel::~Channel() {}
 
-void	Channel::addClient(int fd)
+void	Channel::addClient(int fd, Server &server)
 {
-	(void) fd;
+	Client* clientToAdd = server.getClientByFd(fd);
+    if (clientToAdd) {
+        // Vérifie si le client n'est pas déjà membre du canal
+        if (std::find(_members.begin(), _members.end(), clientToAdd) == _members.end()) 
+		{
+            _members.push_back(clientToAdd);
+            
+            // envoie notif dans channel que qlqun a join 
+            broadcastMessage(clientToAdd->getNickname() + " has joined " + _name, server);
+        }
+    }
 }
 
 void	Channel::removeClient(int fd)
@@ -29,12 +39,31 @@ void	Channel::removeClient(int fd)
 	(void) fd;
 }
 
-void	Channel::broadcastMessage(const std::string &message)
+void	Channel::broadcastMessage(const std::string &message, Server &server)
 {
-	(void) message;
+	for (std::list<Client*>::iterator it = _members.begin(); it != _members.end(); ++it) 
+	{
+        Client* currentClient = *it;
+        int clientFd = currentClient->getFd(); 
+
+        server.sendReply(message, clientFd);
+    }
 }
 
 std::list<Client*>	Channel::getMembers() const
 {
 	return (_members);
+}
+
+void Channel::addInvitedUsers(Client *client)
+{
+	if (std::find(_invitedUsers.begin(), _invitedUsers.end(), client) == _invitedUsers.end()) 
+	{
+         _invitedUsers.push_back(client);
+    }
+}
+
+bool Channel::isUserInvited(Client *client)
+{
+	return std::find(_invitedUsers.begin(), _invitedUsers.end(), client) != _invitedUsers.end();
 }

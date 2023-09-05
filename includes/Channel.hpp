@@ -6,12 +6,16 @@
 #include <unistd.h>
 #include <list>
 #include <vector>
+#include <algorithm>
 
 #include "Client.hpp"
 #include "ICommand.hpp"
 #include "Server.hpp"
 
+
 class Client;
+class Server;
+
 class Channel
 {
 private:
@@ -19,6 +23,31 @@ private:
 	std::string			_topic;
 	std::list<Client*>	_members;
 	unsigned int 		_mode;
+	std::vector<Client *> _invitedUsers;
+
+	// enum ModeFlags
+	// {
+	// 	MODE_NONE = 0,		   // No special mode
+	// 	MODE_INVITE = 1 << 0,  // Invite-only channel
+	// 	MODE_TOPIC = 1 << 1,   // Only operators can change topic
+	// 	MODE_KEY = 1 << 2,	   // Channel is password protected
+	// 	MODE_OPERATOR = 1 << 3 // Client is an operator
+	// };
+
+public:
+	Channel();
+	Channel(Channel const &src);
+	Channel &operator=(Channel const &rhs);
+	~Channel();
+
+	void	addClient(int fd, Server &server);
+	void	removeClient(int fd);
+	void	broadcastMessage(const std::string &message, Server &server);
+
+	void addInvitedUsers(Client *client);
+	bool isUserInvited(Client *client);
+
+	std::list<Client*>	getMembers() const;
 
 	enum ModeFlags
 	{
@@ -28,18 +57,6 @@ private:
 		MODE_KEY = 1 << 2,	   // Channel is password protected
 		MODE_OPERATOR = 1 << 3 // Client is an operator
 	};
-
-public:
-	Channel();
-	Channel(Channel const &src);
-	Channel &operator=(Channel const &rhs);
-	~Channel();
-
-	void	addClient(int fd);
-	void	removeClient(int fd);
-	void	broadcastMessage(const std::string &message);
-
-	std::list<Client*>	getMembers() const;
 
 	// Check if a specific mode is set
 	bool has_mode(ModeFlags flag) const

@@ -21,6 +21,7 @@ private:
 	std::string	_realname;
 	bool		_isOperator;
 	bool		_isRegistered;
+  
 public:
 	Client();
 	Client(Client const &src);
@@ -40,6 +41,7 @@ public:
 	void	setHostname(std::string hostname);
 	void	setRealname(std::string realname);
 	void	setRegistration(bool registered);
+
 };
 
 #endif
