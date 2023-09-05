@@ -12,27 +12,21 @@ void PrivmsgCommand::execute(const std::vector<std::string> &args, int client_fd
 		server.sendReply(":ft_irc 412 :No text to send", client_fd); // ERR_NOTEXTTOSEND
 		return;
 	}
+	std::cout << "args[1] = " << args[1] << std::endl;
 	std::string recipient = args[0];
-	std::string message = args[1];
-	for (size_t i = 3; i < args.size(); ++i)
+	std::string message;
+
+	for (size_t i = 1; i < args.size(); ++i)
 	{
 		message += " " + args[i];
 	}
-	std::cout << "recipient = " << recipient << std::endl;
-	std::cout << "message = " << message << std::endl;
 	Client *sender = server.getClients()[client_fd];
-	std::cout << "sender nickname = " << sender->getNickname() << std::endl;
 	if (sender == NULL)
 	{
-		// The sender is not in the server's client list, handle error
+		server.sendReply("ERROR", client_fd);
 		return;
 	}
-
-	// Use the sendMessage function from the Server class
 	bool success = server.sendMessage(recipient, message, sender);
 	if (!success)
-	{
-		// The recipient does not exist, handle error
-		std::cout << "recipient does not exist" << std::endl;
-	}
+		server.sendReply(":ft_irc 401 " + recipient + " :No such nick/channel", client_fd); // ERR_NOSUCHNICK
 }
