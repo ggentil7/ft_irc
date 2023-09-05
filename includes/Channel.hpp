@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include <list>
 #include <vector>
+#include <algorithm>
 
 #include "Client.hpp"
 #include "ICommand.hpp"
@@ -19,6 +20,7 @@ private:
 	std::string			_topic;
 	std::list<Client*>	_members;
 	unsigned int 		_mode;
+	std::vector<Client *> _invitedUsers;
 
 	// enum ModeFlags
 	// {
@@ -38,6 +40,9 @@ public:
 	void	addClient(int fd);
 	void	removeClient(int fd);
 	void	broadcastMessage(const std::string &message);
+
+	void addInvitedUsers(Client *client);
+	bool isUserInvited(Client *client);
 
 	std::list<Client*>	getMembers() const;
 

@@ -38,3 +38,16 @@ std::list<Client*>	Channel::getMembers() const
 {
 	return (_members);
 }
+
+void Channel::addInvitedUsers(Client *client)
+{
+	if (std::find(_invitedUsers.begin(), _invitedUsers.end(), client) == _invitedUsers.end()) 
+	{
+         _invitedUsers.push_back(client);
+    }
+}
+
+bool Channel::isUserInvited(Client *client)
+{
+	return std::find(_invitedUsers.begin(), _invitedUsers.end(), client) != _invitedUsers.end();
+}

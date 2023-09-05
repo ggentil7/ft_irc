@@ -81,12 +81,14 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
     std::map<int, Client*>::iterator it;
     for (it = server.getClients().begin(); it != server.getClients().end(); ++it)
     {
-        if (it->second->getNickname() == targetNick)
+        if (it->second && it->second->getNickname() == targetNick)
         {
             targetClient = it->second;
             break;
         }
     }
+
+    std::cout << "after check if the target client exist" << std::endl;
 
     if (!targetClient)
     {
@@ -103,14 +105,18 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
         return;
     }
 
-    // Check if the channel is invite-only
-    if (!server.getChannel()[channelName]->has_mode(Channel::MODE_INVITE))
+    std::cout << "after check if the channel exist" << std::endl;
+
+    Channel* targetChannel = server.getChannel()[channelName];
+
+    if (targetChannel && !targetChannel->has_mode(Channel::MODE_INVITE))
     {
-        // Send an error message if the channel isn't invite-only
         server.sendReply(":server 442 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :You're not on that channel", client_fd);
         return;
     }
 
     // Send the invite message to the target client
     server.sendReply(":" + server.getClients()[client_fd]->getNickname() + " INVITE " + targetNick + " :" + channelName, targetClient->getFd());
+
+    std::cout << "after send the invite message to target client" << std::endl;
 }
