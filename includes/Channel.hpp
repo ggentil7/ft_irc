@@ -21,7 +21,7 @@ class Channel
 private:
 	std::string			_name;
 	std::string			_topic;
-	std::list<Client*>	_members;
+	std::list<int>		_members;
 	unsigned int 		_mode;
 	std::vector<Client *> _invitedUsers;
 
@@ -40,14 +40,14 @@ public:
 	Channel &operator=(Channel const &rhs);
 	~Channel();
 
-	void	addClient(int fd, Server &server);
+	void	addClient(int fd);
 	void	removeClient(int fd);
 	void	broadcastMessage(const std::string &message, Server &server);
 
 	void addInvitedUsers(Client *client);
 	bool isUserInvited(Client *client);
 
-	std::list<Client*>	getMembers() const;
+	std::list<int>	getMembers() const;
 
 	enum ModeFlags
 	{

@@ -20,27 +20,36 @@ void JoinCommand::execute(const std::vector<std::string>& args, int client_fd, S
 
 	std::string channelName = args[0];
     Channel* targetChannel = server.getChannelByName(channelName);
+    Client *client = server.getClientByFd(client_fd);
 
-    if (!targetChannel)
+    if (!targetChannel) //si le channel existe pas 
     {
-        std::string errMsg = ":YourServer 403 " + channelName + " :No such channel";
-        server.sendReply(errMsg, client_fd);
-        return;
+        //creer le channel
+        targetChannel = new Channel();
+        server.addChannel(channelName, targetChannel);
+
+        targetChannel->addClient(client_fd);
+
+        std::string createMsg = "Channel " + channelName + " created.";
+        server.sendReply(createMsg, client_fd);
+
     }
 
-    Client* client = server.getClientByFd(client_fd);
-
-    // Vérifiez si le canal est en mode "invite-only" et si l'utilisateur a été invité
-    if (targetChannel->has_mode(Channel::MODE_INVITE) && !targetChannel->isUserInvited(client))
+    else
     {
-        std::string errMsg = ":YourServer 473 " + channelName + " :Cannot join channel (+i) - you must be invited";
-        server.sendReply(errMsg, client_fd);
-        return;
+        // Vérifiez si le canal est en mode "invite-only" et si l'utilisateur a été invité
+        if (targetChannel->has_mode(Channel::MODE_INVITE) && !targetChannel->isUserInvited(client))
+        {
+            std::string errMsg = ":YourServer 473 " + channelName + " :Cannot join channel (+i) - you must be invited";
+            server.sendReply(errMsg, client_fd);
+            return;
+        }
+
+        //ajoutez le client au canal
+        targetChannel->addClient(client_fd);
+
     }
 
-    //ajoutez le client au canal
-    targetChannel->addClient(client_fd, server);
-
-	targetChannel->broadcastMessage(client->getNickname() + " has joined " + channelName, server);
+    targetChannel->broadcastMessage(client->getNickname() + " has joined " + channelName, server);
 
 }

@@ -19,19 +19,24 @@ Channel &Channel::operator=(Channel const &rhs)
 
 Channel::~Channel() {}
 
-void	Channel::addClient(int fd, Server &server)
-{
-	Client* clientToAdd = server.getClientByFd(fd);
-    if (clientToAdd) {
-        // Vérifie si le client n'est pas déjà membre du canal
-        if (std::find(_members.begin(), _members.end(), clientToAdd) == _members.end()) 
-		{
-            _members.push_back(clientToAdd);
+// void	Channel::addClient(int fd, Server &server)
+// {
+// 	Client* clientToAdd = server.getClientByFd(fd);
+//     if (clientToAdd) {
+//         // Vérifie si le client n'est pas déjà membre du canal
+//         if (std::find(_members.begin(), _members.end(), clientToAdd) == _members.end()) 
+// 		{
+//             _members.push_back(clientToAdd);
             
-            // envoie notif dans channel que qlqun a join 
-            broadcastMessage(clientToAdd->getNickname() + " has joined " + _name, server);
-        }
-    }
+//             // envoie notif dans channel que qlqun a join 
+//             broadcastMessage(clientToAdd->getNickname() + " has joined " + _name, server);
+//         }
+//     }
+// }
+
+void	Channel::addClient(int fd)
+{
+     _members.push_back(fd);
 }
 
 void	Channel::removeClient(int fd)
@@ -41,16 +46,15 @@ void	Channel::removeClient(int fd)
 
 void	Channel::broadcastMessage(const std::string &message, Server &server)
 {
-	for (std::list<Client*>::iterator it = _members.begin(); it != _members.end(); ++it) 
+	for (std::list<int>::iterator it = _members.begin(); it != _members.end(); ++it) 
 	{
-        Client* currentClient = *it;
-        int clientFd = currentClient->getFd(); 
+        int clientFd = *it; 
 
         server.sendReply(message, clientFd);
     }
 }
 
-std::list<Client*>	Channel::getMembers() const
+std::list<int>	Channel::getMembers() const
 {
 	return (_members);
 }
