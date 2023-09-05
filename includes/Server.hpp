@@ -72,6 +72,8 @@ public:
 	void 		createSocket();
 	void 		connectionServer();
 
+	void		addChannel(const std::string &channelName, Channel *channel);
+
 	std::pair<std::string, std::vector<std::string> >	parse(std::string message);
 
 	bool	isNickInUse(const std::string& nick);

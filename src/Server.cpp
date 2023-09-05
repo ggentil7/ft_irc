@@ -385,3 +385,9 @@ Channel *Server::getChannelByName(const std::string &channelName)
     }
     return nullptr;
 }
+
+
+void Server::addChannel(const std::string& channelName, Channel* channel)
+{
+    _channels[channelName] = channel;
+}

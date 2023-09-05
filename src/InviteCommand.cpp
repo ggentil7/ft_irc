@@ -36,14 +36,14 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
     }
 
     // Check if the channel exists
-    if (server.getChannel().find(channelName) == server.getChannel().end())
+    if (server.getChannels().find(channelName) == server.getChannels().end())
     {
         // Send an error message if the channel doesn't exist
         server.sendReply(":server 403 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :No such channel", client_fd);
         return;
     }
 
-    Channel* targetChannel = server.getChannel()[channelName];
+    Channel* targetChannel = server.getChannels()[channelName];
 
     if (targetChannel && !targetChannel->has_mode(Channel::MODE_INVITE))
     {
