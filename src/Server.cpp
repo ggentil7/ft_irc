@@ -91,6 +91,36 @@ std::map<std::string, ICommand *> Server::getCommands()
 	return (this->_commandMap);
 }
 
+Channel	*Server::getChannelByName(const std::string name)
+{
+	std::map<std::string, Channel *>::iterator it = _channels.find(name);
+	if (it != _channels.end())
+	{
+		return it->second;
+	}
+	return NULL;
+}
+
+Client	*Server::getClientByNickname(const std::string nickname)
+{
+	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (it->second->getNickname() == nickname)
+		{
+			return it->second;
+		}
+	}
+	return NULL;
+}
+
+Client	*Server::getClientByFd(int fd)
+{
+	std::map<int, Client *>::iterator it = _clients.find(fd);
+	if (it != _clients.end())
+		return it->second;
+	return NULL;
+}
+
 std::string Server::getPassword()
 {
 	return (_password);
@@ -326,15 +356,17 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 	// Check if the recipient is a channel
 	if (_channels.find(recipient) != _channels.end())
 	{
-		std::list<Client *> members = _channels[recipient]->getMembers();
-		for (std::list<Client *>::iterator it = members.begin(); it != members.end(); ++it)
+		std::list<int> members = _channels[recipient]->getMembers();
+		for (std::list<int>::iterator it = members.begin(); it != members.end(); ++it)
 		{
+			int recipientFd = *it;
+			Client	*recipientClient = getClientByFd(recipientFd);
 			// Do not send the message back to the sender
-			if ((*it)->getFd() != sender->getFd())
+			if (recipientFd != sender->getFd())
 			{
-				std::cout << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << (*it)->getFd() << "(" << (*it)->getNickname() << ")" << "] " << formattedMessage;
-				if (send((*it)->getFd(), formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
-					std::cerr << "Failed to send message to client: " << (*it)->getFd() << std::endl;
+				std::cout << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << recipientFd << "(" << recipientClient->getNickname() << ")" << "] " << formattedMessage;
+				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
+					std::cerr << "Failed to send message to client: " << recipientFd << std::endl;
 			}
 		}
 		return true;

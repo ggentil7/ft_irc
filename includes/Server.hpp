@@ -65,6 +65,10 @@ public:
 	std::map<std::string, Channel*>		getChannels();
 	std::map<std::string, ICommand*>	getCommands();
 
+	Channel	*getChannelByName(const std::string name);
+	Client	*getClientByNickname(const std::string nickname);
+	Client	*getClientByFd(int fd);
+
 	std::string getPassword();
 	void		setPassword(std::string password);
 	bool		getValidPassword();
