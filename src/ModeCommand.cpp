@@ -152,7 +152,7 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		client->setMode(modeFlag, true);
 
 		// Send a reply back to the client
-		std::string modeReply = ":YourServer 221 " + client->getNickname() + " :" + mode;
+		std::string modeReply = ":ft_irc 221 " + client->getNickname() + " :" + mode;
 		server.sendReply(modeReply, client_fd);
 	}
 }

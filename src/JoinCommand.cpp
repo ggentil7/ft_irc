@@ -3,22 +3,19 @@
 
 void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
-	std::cout << "Server: JOIN ";
-	std::vector<std::string> newArgs(args);
-	for (std::vector<std::string>::iterator it = newArgs.begin(); it != newArgs.end(); ++it)
-	{
-		std::cout << *it << ' ';
-	}
-	std::cout << std::endl;
-
 	if (args.size() < 1)
 	{
 		std::string errMsg = ":ft_irc 461 JOIN :Not enough parameters"; // ERR_NEEDMOREPARAMS
 		server.sendReply(errMsg, client_fd);
 		return;
 	}
-
-	std::string channelName = args[0];
+	std::string channelName;
+	if (args.size() == 1 && args[0] == "")
+		channelName = "ft_irc";
+	else
+		channelName = args[0];
+	if (channelName[0] != '#')
+		return;
 	Channel *targetChannel = server.getChannelByName(channelName);
 	Client *client = server.getClientByFd(client_fd);
 

@@ -33,20 +33,5 @@ void PassCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		// Send My Info
 		std::string myInfoMsg = ":ft_irc 004 " + server.getClients()[client_fd]->getNickname() + " ft_irc ircd-2.10.3"; //? use config file
 		server.sendReply(myInfoMsg, client_fd);
-
-		// Send CAP LS
-		std::string capLSMsg = ":ft_irc CAP * LS :multi-prefix";
-		server.sendReply(capLSMsg, client_fd);
-
-		// Send MOTD
-		std::string motdMsg = ":ft_irc 372 " + server.getClients()[client_fd]->getNickname() + " :- Welcome to ft_irc!";
-		server.sendReply(motdMsg, client_fd);
-
-		std::string endMOTDMsg = ":ft_irc 376 " + server.getClients()[client_fd]->getNickname() + " :End of MOTD command";
-		server.sendReply(endMOTDMsg, client_fd);
-
-		// Send Initial Modes
-		std::string modeAckMsg = ":ft_irc 221 " + server.getClients()[client_fd]->getNickname() + " +i";
-		server.sendReply(modeAckMsg, client_fd);
 	}
 }

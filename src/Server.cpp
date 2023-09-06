@@ -204,13 +204,18 @@ void Server::connectionServer()
 			// Ajout du nouveau client dans le vector
 			_client_socket.push_back(new_socket_client);
 
-			// std::string	defaultNickBase = "guest";
-			std::string	defaultNick = "guest";
-			// int	uniqueID = 0;
+			std::string			defaultNickBase = "guest";
+			std::string			defaultNick;
+			std::ostringstream	convert;
 
-			// do
-			// 	defaultNick = defaultNickBase + std::to_string(uniqueID++);
-			// while (isNickInUse(defaultNick));
+			int uniqueID = new_socket_client;
+			do	{
+					convert.str("");							// Clearing the stringstream
+					convert.clear();							// Clearing the stringstream state flags
+					convert << defaultNickBase << uniqueID++;	// increment uniqueID after using its value
+					defaultNick = convert.str();
+				}
+			while	(isNickInUse(defaultNick));
 
 			_clients[new_socket_client] = new Client();
 			_clients[new_socket_client]->setNickname(defaultNick);
@@ -320,7 +325,7 @@ void Server::sendReply(const std::string &message, int client_fd)
 
 	std::cout << GREEN <<"Server: [" << this->_socket << "->" << client_fd << "(" << _clients[client_fd]->getNickname() << ")" << "] " << cMessage << DEFAULT;
 
-	if (send(client_fd, cMessage, std::strlen(cMessage), MSG_NOSIGNAL) == -1)
+	if (send(client_fd, cMessage, std::strlen(cMessage), 0) == -1)
 		std::cerr << "Failed to send reply to client: " << client_fd << std::endl;
 }
 
@@ -341,7 +346,7 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 			if (recipientFd != sender->getFd())
 			{
 				std::cout << GREEN << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << recipientFd << "(" << recipientClient->getNickname() << ")" << "] " << formattedMessage << DEFAULT;
-				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), MSG_NOSIGNAL) == -1)
+				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
 					std::cerr << "Failed to send message to client: " << recipientFd << std::endl;
 			}
 		}
@@ -358,7 +363,7 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 				Client	*recipientClient = getClientByFd(recipientFd);
 
 				std::cout << GREEN << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << recipientFd << "(" << recipientClient->getNickname() << ")" << "] " << formattedMessage << DEFAULT;
-				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), MSG_NOSIGNAL) == -1)
+				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
 					std::cerr << "Failed to send message to client: " << recipientFd << std::endl;
 				return true;
 			}
