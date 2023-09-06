@@ -15,7 +15,7 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
 	std::string channelName = args[1];
 
 	// Check if the target client exists
-	Client *targetClient = nullptr;
+	Client *targetClient = NULL;
 	std::map<int, Client *>::iterator it;
 	for (it = server.getClients().begin(); it != server.getClients().end(); ++it)
 	{
