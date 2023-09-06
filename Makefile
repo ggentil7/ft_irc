@@ -11,7 +11,7 @@ SRC_DIR = ./src
 # **************************************************************************** #
 
 CXX			?= g++
-CXXFLAGS	= -Wall -Wextra -Werror -pedantic  -std=c++98 -g #-fsanitize=address
+CXXFLAGS	= -Wall -Wextra -Werror -pedantic  -std=c++98 -g -fsanitize=address
 INC_FLAG	= -I $(INCL_DIR)
 
 # **************************************************************************** #

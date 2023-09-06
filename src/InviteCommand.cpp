@@ -7,7 +7,7 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
 
 	if (args.size() < 2)
 	{
-		server.sendReply(":server 461 " + server.getClients()[client_fd]->getNickname() + " INVITE :Not enough parameters", client_fd);
+		server.sendReply(":server 461 " + server.getClients()[client_fd]->getNickname() + " INVITE :Not enough parameters", client_fd); //ERR_NEEDMOREPARAMS 
 		return;
 	}
 
@@ -28,30 +28,47 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
 
 	if (!targetClient)
 	{
-		// Send an error message if the target client doesn't exist
-		server.sendReply(":server 401 " + server.getClients()[client_fd]->getNickname() + " " + targetNick + " :No such nick/channel", client_fd);
+		server.sendReply(":server 401 " + server.getClients()[client_fd]->getNickname() + " " + targetNick + " :No such nick", client_fd); //ERR_NOSUCHNICK
 		return;
 	}
 
 	// Check if the channel exists
 	if (server.getChannels().find(channelName) == server.getChannels().end())
 	{
-		// Send an error message if the channel doesn't exist
-		server.sendReply(":server 403 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :No such channel", client_fd);
+		server.sendReply(":server 403 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :No such channel", client_fd); //ERR_NOTONCHANNEL
 		return;
 	}
 
 	Channel *targetChannel = server.getChannels()[channelName];
 
-	if (targetChannel && !targetChannel->isModeSet(Channel::INVITE_ONLY))
-	{
-		server.sendReply(":server 442 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :You're not on that channel", client_fd);
-		return;
-	}
+    //check si le client est membre du channel
+    if (!targetChannel->isMember(client_fd))
+    {
+        server.sendReply(":server 442 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :You're not on that channel", client_fd); //ERR_USERONCHANNEL
+        return;
+    }
+
+	// Check if the channel is in INVITE_ONLY mode and if the client is an operator
+    if (targetChannel->isModeSet(Channel::INVITE_ONLY) && !targetChannel->isOperator(client_fd))
+    {
+        server.sendReply(":server 482 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :You're not channel operator", client_fd); //ERR_CHANOPRIVSNEEDED
+        return;
+    }
+
+    // Check if the target client is already a member of the channel
+    if (targetChannel->isMember(targetClient->getFd()))
+    {
+        server.sendReply(":server 443 " + targetNick + " " + channelName + " :is already on channel", client_fd);
+        return;
+    }
 
 	// Send the invite message to the target client
-	server.sendReply(":" + server.getClients()[client_fd]->getNickname() + " INVITE " + targetNick + " :" + channelName, targetClient->getFd());
+    server.sendReply(":" + server.getClients()[client_fd]->getNickname() + " INVITE " + targetNick + " :" + channelName, targetClient->getFd());
 
-	// ajouter le user cible a la liste des utilisateurs invité au channel
-	targetChannel->addInvitedUsers(targetClient);
+    // Notify the inviting user
+    server.sendReply(":server 341 " + server.getClients()[client_fd]->getNickname() + " " + targetNick + " " + channelName, client_fd);
+
+    // Add the target user to the list of invited users for the channel
+    targetChannel->addInvitedUsers(targetClient);
 }
+

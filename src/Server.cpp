@@ -320,7 +320,7 @@ void Server::sendReply(const std::string &message, int client_fd)
 
 	std::cout << GREEN <<"Server: [" << this->_socket << "->" << client_fd << "(" << _clients[client_fd]->getNickname() << ")" << "] " << cMessage << DEFAULT;
 
-	if (send(client_fd, cMessage, std::strlen(cMessage), MSG_NOSIGNAL) == -1)
+	if (send(client_fd, cMessage, std::strlen(cMessage), 0) == -1)
 		std::cerr << "Failed to send reply to client: " << client_fd << std::endl;
 }
 
@@ -341,7 +341,7 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 			if (recipientFd != sender->getFd())
 			{
 				std::cout << GREEN << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << recipientFd << "(" << recipientClient->getNickname() << ")" << "] " << formattedMessage << DEFAULT;
-				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), MSG_NOSIGNAL) == -1)
+				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
 					std::cerr << "Failed to send message to client: " << recipientFd << std::endl;
 			}
 		}
@@ -358,7 +358,7 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 				Client	*recipientClient = getClientByFd(recipientFd);
 
 				std::cout << GREEN << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << recipientFd << "(" << recipientClient->getNickname() << ")" << "] " << formattedMessage << DEFAULT;
-				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), MSG_NOSIGNAL) == -1)
+				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
 					std::cerr << "Failed to send message to client: " << recipientFd << std::endl;
 				return true;
 			}
