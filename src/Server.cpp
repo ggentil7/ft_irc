@@ -204,13 +204,13 @@ void Server::connectionServer()
 			// Ajout du nouveau client dans le vector
 			_client_socket.push_back(new_socket_client);
 
-			std::string	defaultNickBase = "guest";
-			std::string	defaultNick;
-			int	uniqueID = 0;
+			// std::string	defaultNickBase = "guest";
+			std::string	defaultNick = "guest";
+			// int	uniqueID = 0;
 
-			do
-				defaultNick = defaultNickBase + std::to_string(uniqueID++);
-			while (isNickInUse(defaultNick));
+			// do
+			// 	defaultNick = defaultNickBase + std::to_string(uniqueID++);
+			// while (isNickInUse(defaultNick));
 
 			_clients[new_socket_client] = new Client();
 			_clients[new_socket_client]->setNickname(defaultNick);
@@ -275,68 +275,53 @@ std::pair<std::string, std::vector<std::string> > Server::parse(std::string mess
 {
 	std::istringstream iss(message);
 	std::string token, prefix, command;
+	std::vector<std::string> args;
 
-	// Check for prefix
+	// Extract prefix if exists
 	iss >> token;
 	if (token[0] == ':')
 	{
-		prefix = token.substr(1); // Remove the leading ':'
-		iss >> command;			  // The next token should be the command
+		prefix = token.substr(1);
+		iss >> command;
 	}
 	else
-	{
-		command = token; // No prefix, the first token is the command
-	}
+		command = token;
 
-	// Parse parameters
-	std::vector<std::string> params;
+	// Extract arguments
 	while (iss >> token)
 	{
 		if (token[0] == ':')
 		{
-			// This is the last parameter, which can contain spaces
-			std::string lastParam;
-			getline(iss, lastParam); // Read the rest of the line
-			if (!lastParam.empty())
-			{
-				lastParam = lastParam.substr(1); // Remove leading space
-			}
-			params.push_back(token.substr(1) + lastParam);
+			std::string remaining;
+			getline(iss, remaining);
+			args.push_back(token.substr(1) + remaining);
 			break;
 		}
 		else
-		{
-			params.push_back(token);
-		}
+			args.push_back(token);
 	}
-	return (std::make_pair(command, params));
+	return std::make_pair(command, args);
 }
 
 bool Server::isNickInUse(const std::string &nick)
 {
-	// Iterate through the map of clients
 	for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
-		// Check if the nickname is already in use
 		if (it->second->getNickname() == nick)
-		{
-			return true; // Nickname is in use
-		}
+			return true;
 	}
 	return (false);
 }
 
 void Server::sendReply(const std::string &message, int client_fd)
 {
-	// Send the IRC reply back to the client
 	std::string formattedMessage = message + "\r\n";
 	const char *cMessage = formattedMessage.c_str();
+
 	std::cout << GREEN <<"Server: [" << this->_socket << "->" << client_fd << "(" << _clients[client_fd]->getNickname() << ")" << "] " << cMessage << DEFAULT;
-	if (send(client_fd, cMessage, std::strlen(cMessage), 0) == -1)
-	{
-		// Log the error or handle it appropriately
+
+	if (send(client_fd, cMessage, std::strlen(cMessage), MSG_NOSIGNAL) == -1)
 		std::cerr << "Failed to send reply to client: " << client_fd << std::endl;
-	}
 }
 
 bool Server::sendMessage(const std::string &recipient, const std::string &message, Client *sender)
@@ -356,7 +341,7 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 			if (recipientFd != sender->getFd())
 			{
 				std::cout << GREEN << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << recipientFd << "(" << recipientClient->getNickname() << ")" << "] " << formattedMessage << DEFAULT;
-				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
+				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), MSG_NOSIGNAL) == -1)
 					std::cerr << "Failed to send message to client: " << recipientFd << std::endl;
 			}
 		}
@@ -369,16 +354,12 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 		{
 			if (it->second->getNickname() == recipient || it->second->getUsername() == recipient)
 			{
-				std::cout << "Sending to : " << _clients[it->first]->getNickname() << std::endl;  // Debugging output
-				std::cout << "Formatted Message: " << formattedMessage << std::endl;
-				for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); ++it)
-				{
-					std::cout << "Checking client with FD: " << it->first << " and Nickname: " << it->second->getNickname() << std::endl;
-					// ... rest of your code
-				}
-				std::cout << "send is to " << it->first << std::endl;
-				if (send(it->first, formattedMessage.c_str(), formattedMessage.length(), 0) == -1)
-					std::cerr << "Failed to send message to client: " << it->first << std::endl;
+				int recipientFd = it->first;
+				Client	*recipientClient = getClientByFd(recipientFd);
+
+				std::cout << GREEN << "Server: [" << sender->getFd() << "(" << sender->getNickname()  << ")" << "->" << recipientFd << "(" << recipientClient->getNickname() << ")" << "] " << formattedMessage << DEFAULT;
+				if (send(recipientFd, formattedMessage.c_str(), formattedMessage.length(), MSG_NOSIGNAL) == -1)
+					std::cerr << "Failed to send message to client: " << recipientFd << std::endl;
 				return true;
 			}
 		}

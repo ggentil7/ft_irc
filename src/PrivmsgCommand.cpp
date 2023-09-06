@@ -12,7 +12,6 @@ void PrivmsgCommand::execute(const std::vector<std::string> &args, int client_fd
 		server.sendReply(":ft_irc 412 :No text to send", client_fd); // ERR_NOTEXTTOSEND
 		return;
 	}
-	std::cout << "args[1] = " << args[1] << std::endl;
 	std::string recipient = args[0];
 	std::string message;
 
