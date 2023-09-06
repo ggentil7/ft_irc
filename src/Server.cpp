@@ -204,21 +204,7 @@ void Server::connectionServer()
 			// Ajout du nouveau client dans le vector
 			_client_socket.push_back(new_socket_client);
 
-			std::string			defaultNickBase = "guest";
-			std::string			defaultNick;
-			std::ostringstream	convert;
-
-			int uniqueID = new_socket_client;
-			do	{
-					convert.str("");							// Clearing the stringstream
-					convert.clear();							// Clearing the stringstream state flags
-					convert << defaultNickBase << uniqueID++;	// increment uniqueID after using its value
-					defaultNick = convert.str();
-				}
-			while	(isNickInUse(defaultNick));
-
 			_clients[new_socket_client] = new Client();
-			_clients[new_socket_client]->setNickname(defaultNick);
 			_clients[new_socket_client]->setFd(new_socket_client);
 		}
 
@@ -373,5 +359,5 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 
 void Server::addChannel(const std::string& channelName, Channel* channel)
 {
-    _channels[channelName] = channel;
+	_channels[channelName] = channel;
 }

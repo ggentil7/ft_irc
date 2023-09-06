@@ -19,7 +19,7 @@ private:
 	std::string	_username;
 	std::string	_hostname;
 	std::string	_realname;
-	bool		_isRegistered;
+	bool		_registration;
 	int			_clientModes;
 public:
 	Client();
@@ -32,14 +32,14 @@ public:
 	std::string	getUsername(void) const;
 	std::string	getHostname(void) const;
 	std::string	getRealname(void) const;
-	bool		getRegistration(void) const;
+	int			getRegistration(void) const;
 
 	void	setFd(int fd);
 	void	setNickname(std::string nickname);
 	void	setUsername(std::string username);
 	void	setHostname(std::string hostname);
 	void	setRealname(std::string realname);
-	void	setRegistration(bool registered);
+	void	setRegistration(int registration);
 
 	void	setMode(int modeFlag, bool enable);
 	bool	isModeSet(int modeFlag) const;
@@ -52,6 +52,12 @@ public:
 		RESTRICTED		= 1 << 3,
 		OPERATOR		= 1 << 4,
 		SERVER_NOTICES	= 1 << 5
+	};
+
+	enum Registration {
+		FAIL	= 0,
+		PASS	= 1,
+		DONE	= 2
 	};
 };
 

@@ -143,7 +143,7 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		Client *client = server.getClientByNickname(target);
 		if (!client)
 		{
-			// Send error reply: ERR_NOSUCHNICK
+			server.sendReply(":ft_irc 401 " + target + ":No such nick/channel", client_fd); // ERR_NOSUCHNICK
 			return;
 		}
 
