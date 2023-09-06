@@ -220,8 +220,6 @@ void Server::connectionServer()
 			_clients[new_socket_client] = new Client();
 			_clients[new_socket_client]->setNickname(defaultNick);
 			_clients[new_socket_client]->setFd(new_socket_client);
-
-			std::string nick = this->_clients[_client_socket.back()]->getNickname();
 		}
 
 		for (size_t i = 0; i < _client_socket.size(); i++)
