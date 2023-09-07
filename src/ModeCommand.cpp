@@ -141,7 +141,6 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 			}
 			additional_arg = args[2];
 			channel->setKey(additional_arg);
-			std::cout << BLUE << "key set to " << additional_arg << DEFAULT << std::endl;
 		}
 
 		// Check if 'l' mode is being set
