@@ -19,21 +19,6 @@ Channel &Channel::operator=(Channel const &rhs)
 
 Channel::~Channel() {}
 
-// void	Channel::addClient(int fd, Server &server)
-// {
-// 	Client* clientToAdd = server.getClientByFd(fd);
-//     if (clientToAdd) {
-//         // Vérifie si le client n'est pas déjà membre du canal
-//         if (std::find(_members.begin(), _members.end(), clientToAdd) == _members.end())
-// 		{
-//             _members.push_back(clientToAdd);
-
-//             // envoie notif dans channel que qlqun a join
-//             broadcastMessage(clientToAdd->getNickname() + " has joined " + _name, server);
-//         }
-//     }
-// }
-
 void Channel::addClient(int fd)
 {
 	_members.push_back(fd);
@@ -117,7 +102,7 @@ void	Channel::setUserLimit(size_t limit)
 	_userLimit = limit;
 }
 
-void Channel::addInvitedUsers(Client *client)
+void Channel::addInvitedUser(Client *client)
 {
 	if (std::find(_invitedUsers.begin(), _invitedUsers.end(), client) == _invitedUsers.end())
 	{

@@ -1,5 +1,5 @@
-#include "../includes/Server.hpp"
 #include "../includes/JoinCommand.hpp"
+#include "../includes/Server.hpp"
 
 void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
@@ -27,6 +27,9 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 
 		targetChannel->addClient(client_fd);
 		targetChannel->addOperator(client_fd);
+
+		//TODO use OPER command instead
+		client->setMode(Client::OPERATOR, true);
 
 		std::string createMsg = "Channel " + channelName + " created.";
 		server.sendReply(createMsg, client_fd);

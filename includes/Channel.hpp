@@ -60,8 +60,8 @@ public:
 		USER_LIMIT = 0x10		// l
 	};
 
-	void addInvitedUsers(Client *client);
-	bool isUserInvited(Client *client);
+	void	addInvitedUser(Client *client);
+	bool	isUserInvited(Client *client);
 };
 
 #endif
