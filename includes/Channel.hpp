@@ -23,6 +23,7 @@ private:
 	std::list<int>		_members;
 	std::list<int>		_operators;
 	int					_channelModes;
+	size_t					_userLimit;
 	std::vector<Client *> _invitedUsers;
 
 public:
@@ -47,6 +48,8 @@ public:
 
 	void	setMode(int modeFlag, bool enable);
 	bool	isModeSet(int modeFlag) const;
+	size_t	getUserLimit() const;
+	void	setUserLimit(size_t limit);
 
 	enum Mode {
 		NONE = 0x0,

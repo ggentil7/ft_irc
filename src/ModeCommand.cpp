@@ -119,23 +119,40 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		Channel *channel = server.getChannelByName(target);
 		if (!channel)
 		{
-			server.sendReply(":ft_irc 403 " + target + " :No such channel", client_fd); // ERR_NOSUCHCHANNEL
+			server.sendReply(":ft_irc 403 " + server.getClients()[client_fd]->getNickname() + " " + target + " :No such channel", client_fd); // ERR_NOSUCHCHANNEL
 			return;
 		}
 
 		// Permission check: Only operators can change channel mode
 		if (!channel->isOperator(client_fd))
 		{
-			server.sendReply(":ft_irc 482 " + target + ":You're not channel operator", client_fd); // ERR_CHANOPRIVSNEEDED
+			server.sendReply(":ft_irc 482 " + server.getClients()[client_fd]->getNickname() + " " + target + " :You're not channel operator", client_fd); // ERR_CHANOPRIVSNEEDED
 			return;
 		}
 
 		// Apply mode change
 		int modeFlag = parseChannelMode(mode);
+
+		std::string modeMessage = ":" + server.getClients()[client_fd]->getNickname() + " MODE " + target + " :" + mode;
+
+		// Check if 'l' mode is being set
+		if ((modeFlag & Channel::USER_LIMIT) != 0)
+		{
+			if (args.size() < 3) // Check if limit argument is provided
+			{
+				server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd);
+				return;
+			}
+			size_t userLimit = std::atoi(args[2].c_str());
+			channel->setUserLimit(userLimit);
+			modeMessage += " " + args[2];
+		}
+		else
+			channel->setUserLimit(0); // If 'l' mode is being removed
+
 		channel->setMode(modeFlag, true);
 
 		// Notify all channel members
-		std::string modeMessage = ":" + server.getClients()[client_fd]->getNickname() + " MODE " + target + " :" + mode;
 		channel->broadcastMessage(modeMessage, server);
 	}
 	else
@@ -143,7 +160,7 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		Client *client = server.getClientByNickname(target);
 		if (!client)
 		{
-			server.sendReply(":ft_irc 401 " + target + ":No such nick/channel", client_fd); // ERR_NOSUCHNICK
+			server.sendReply(":ft_irc 401 " + server.getClients()[client_fd]->getNickname() + " " + target + " :No such nick/channel", client_fd); // ERR_NOSUCHNICK
 			return;
 		}
 

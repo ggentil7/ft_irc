@@ -5,7 +5,7 @@
 #include "../includes/NickCommand.hpp"
 #include "../includes/Server.hpp"
 
-Channel::Channel() : _channelModes(NONE) {}
+Channel::Channel() : _channelModes(NONE), _userLimit(0) {}
 
 Channel::Channel(Channel const &src)
 {
@@ -105,6 +105,16 @@ void Channel::setMode(int modeFlag, bool enable)
 bool Channel::isModeSet(int modeFlag) const
 {
 	return (_channelModes & modeFlag) != 0;
+}
+
+size_t	Channel::getUserLimit() const
+{
+	return (_userLimit);
+}
+
+void	Channel::setUserLimit(size_t limit)
+{
+	_userLimit = limit;
 }
 
 void Channel::addInvitedUsers(Client *client)

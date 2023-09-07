@@ -33,14 +33,19 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 	}
 	else
 	{
+		// Check if user limit is set and if channel is full
+		if (targetChannel->getUserLimit() > 0 && targetChannel->getMembers().size() >= targetChannel->getUserLimit())
+		{
+			server.sendReply(":ft_irc 471 " + server.getClients()[client_fd]->getNickname() + " " +  channelName + " :Cannot join channel (+l) - channel is full", client_fd);
+			return;
+		}
 		// Vérifiez si le canal est en mode "invite-only" et si l'utilisateur a été invité
 		if (targetChannel->isModeSet(Channel::INVITE_ONLY) && !targetChannel->isUserInvited(client))
 		{
-			std::string errMsg = ":YourServer 473 " + channelName + " :Cannot join channel (+i) - you must be invited"; // ERR_INVITEONLYCHAN
+			std::string errMsg = ":ft_irc 473 " + server.getClients()[client_fd]->getNickname() + " " + channelName + " :Cannot join channel (+i) - you must be invited"; // ERR_INVITEONLYCHAN
 			server.sendReply(errMsg, client_fd);
 			return;
 		}
-
 		// ajoutez le client au canal
 		targetChannel->addClient(client_fd);
 	}
