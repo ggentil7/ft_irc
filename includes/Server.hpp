@@ -28,6 +28,7 @@
 #include "NickCommand.hpp"
 #include "PassCommand.hpp"
 #include "InviteCommand.hpp"
+#include "OperCommand.hpp"
 
 #define IP_SERVER "127.0.0.1"
 #define BACK_LOG 30

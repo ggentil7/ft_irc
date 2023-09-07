@@ -18,13 +18,14 @@ class Server;
 class Channel
 {
 private:
-	std::string			_name;
-	std::string			_topic;
-	std::list<int>		_members;
-	std::list<int>		_operators;
-	int					_channelModes;
-	size_t					_userLimit;
-	std::vector<Client *> _invitedUsers;
+	std::string		_name;
+	std::string		_topic;
+	std::string		_password;
+	std::list<int>	_members;
+	std::list<int>	_operators;
+	int				_channelModes;
+	size_t			_userLimit;
+	std::vector<Client *>	_invitedUsers;
 
 public:
 	Channel();
@@ -32,24 +33,34 @@ public:
 	Channel &operator=(Channel const &rhs);
 	~Channel();
 
-	void	addClient(int fd);
-	void	removeClient(int fd);
 	void	broadcastMessage(const std::string &message, Server &server);
+
+	void	addClient(int fd);		//! To replace with addMember
+	void	removeClient(int fd);	//! To replace with removeMember
 
 	void	addMember(int client_fd);
 	void	addOperator(int client_fd);
-	bool	isMember(int client_fd);
-	bool	isOperator(int client_fd);
+
 	void	removeMember(int client_fd);
 	void	removeOperator(int client_fd);
+
+	bool	isMember(int client_fd);
+	bool	isOperator(int client_fd);
 
 	std::list<int>	getMembers() const;
 	std::list<int>	getOperators() const;
 
-	void	setMode(int modeFlag, bool enable);
 	bool	isModeSet(int modeFlag) const;
+	void	setMode(int modeFlag, bool enable);
+
 	size_t	getUserLimit() const;
 	void	setUserLimit(size_t limit);
+
+	std::string		getPassword() const;
+	void			setPassword(std::string password);
+
+	void	addInvitedUser(Client *client);
+	bool	isUserInvited(Client *client);
 
 	enum Mode {
 		NONE = 0x0,
@@ -59,9 +70,6 @@ public:
 		OPERATOR = 0x8,			// o
 		USER_LIMIT = 0x10		// l
 	};
-
-	void	addInvitedUser(Client *client);
-	bool	isUserInvited(Client *client);
 };
 
 #endif

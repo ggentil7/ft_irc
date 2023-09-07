@@ -102,6 +102,16 @@ void	Channel::setUserLimit(size_t limit)
 	_userLimit = limit;
 }
 
+std::string		Channel::getPassword() const
+{
+	return (_password);
+}
+
+void	Channel::setPassword(std::string password)
+{
+	_password = password;
+}
+
 void Channel::addInvitedUser(Client *client)
 {
 	if (std::find(_invitedUsers.begin(), _invitedUsers.end(), client) == _invitedUsers.end())

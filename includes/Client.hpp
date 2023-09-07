@@ -57,7 +57,8 @@ public:
 	enum Registration {
 		FAIL	= 0,
 		PASS	= 1,
-		DONE	= 2
+		NICK	= 2,
+		DONE	= 3
 	};
 };
 

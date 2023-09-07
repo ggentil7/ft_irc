@@ -9,13 +9,16 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		server.sendReply(errMsg, client_fd);
 		return;
 	}
+
 	std::string channelName;
 	if (args.size() == 1 && args[0] == "")
 		channelName = "ft_irc";
 	else
 		channelName = args[0];
+
 	if (channelName[0] != '#')
 		return;
+
 	Channel *targetChannel = server.getChannelByName(channelName);
 	Client *client = server.getClientByFd(client_fd);
 
@@ -28,7 +31,6 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		targetChannel->addClient(client_fd);
 		targetChannel->addOperator(client_fd);
 
-		//TODO use OPER command instead
 		client->setMode(Client::OPERATOR, true);
 
 		std::string createMsg = "Channel " + channelName + " created.";
