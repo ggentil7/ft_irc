@@ -41,6 +41,11 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
 			return;
 		}
 	}
+	else
+	{
+		server.sendReply(":server 403 " + invitingClient->getNickname() + " " + channelName + " :No such channel", client_fd);
+		return;
+	}
 
 	server.sendReply(":" + invitingClient->getNickname() + " INVITE " + targetNick + " :" + channelName, targetClient->getFd());
 
