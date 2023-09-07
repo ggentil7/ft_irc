@@ -27,6 +27,7 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	_commandMap["PRIVMSG"] = new PrivmsgCommand();
 	_commandMap["OPER"] = new OperCommand();
 	_commandMap["PING"] = new PingCommand();
+	_commandMap["QUIT"] = new QuitCommand();
 }
 
 Server::Server(Server const &src)
@@ -220,7 +221,7 @@ void Server::connectionServer()
 				if ((valread = read(sd, buffer, 1024)) == 0)
 				{
 					// Handle disconnection logic
-					close(sd);
+					removeClient(sd);
 					_client_socket.erase(_client_socket.begin() + i);
 					clientBuffers.erase(sd); // Remove the buffer for the disconnected client
 				}
@@ -356,4 +357,20 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 void Server::addChannel(const std::string& channelName, Channel* channel)
 {
 	_channels[channelName] = channel;
+}
+
+void	Server::removeClient(int client_fd)
+{
+	std::map<int, Client *>::iterator it = _clients.find(client_fd);
+	if (it != _clients.end())
+	{
+		// Delete the client object from heap
+		delete it->second;
+
+		// Remove the client from the map
+		_clients.erase(it);
+	}
+
+	// Close the socket
+	close(client_fd);
 }
