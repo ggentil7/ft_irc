@@ -19,7 +19,7 @@ private:
 	std::string	_username;
 	std::string	_hostname;
 	std::string	_realname;
-	bool		_registration;
+	int			_registration;
 	int			_clientModes;
 public:
 	Client();

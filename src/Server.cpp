@@ -5,7 +5,6 @@
 #include "../includes/CapCommand.hpp"
 #include "../includes/InviteCommand.hpp"
 #include "../includes/ModeCommand.hpp"
-#include "../includes/WhoisCommand.hpp"
 #include "../includes/NickCommand.hpp"
 #include "../includes/PrivmsgCommand.hpp"
 #include "../includes/UserCommand.hpp"
@@ -25,7 +24,6 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	_commandMap["INVITE"] = new InviteCommand();
 	_commandMap["TOPIC"] = new TopicCommand();
 	_commandMap["MODE"] = new ModeCommand();
-	_commandMap["WHOIS"] = new WhoisCommand();
 	_commandMap["PRIVMSG"] = new PrivmsgCommand();
 }
 
