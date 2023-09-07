@@ -2,8 +2,8 @@
 
 int	ModeCommand::parseChannelMode(const std::string &modeStr)
 {
-	int modeFlag = 0; // Initialize flag
-	bool adding = true; // To keep track if we are adding (+) or removing (-) modes
+	int		modeFlag = 0;
+	bool	adding = true;
 
 	for (size_t i = 0; i < modeStr.length(); ++i)
 	{
@@ -110,10 +110,10 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		return;
 	}
 
-	std::string target = args[0];
-	std::string mode = args[1];
+	std::string	target = args[0];
+	std::string	mode = args[1];
+	std::string	additional_arg;
 
-	// Identify if the target is a channel or user
 	if (target[0] == '#')
 	{ // This is a channel mode change
 		Channel *channel = server.getChannelByName(target);
@@ -123,17 +123,26 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 			return;
 		}
 
-		// Permission check: Only operators can change channel mode
 		if (!channel->isOperator(client_fd))
 		{
 			server.sendReply(":ft_irc 482 " + server.getClients()[client_fd]->getNickname() + " " + target + " :You're not channel operator", client_fd); // ERR_CHANOPRIVSNEEDED
 			return;
 		}
 
-		// Apply mode change
 		int modeFlag = parseChannelMode(mode);
 
-		std::string modeMessage = ":" + server.getClients()[client_fd]->getNickname() + " MODE " + target + " :" + mode;
+		// Check if 'k' mode is being set
+		if ((modeFlag & Channel::KEY_PROTECTED) != 0)
+		{
+			if (args.size() < 3)
+			{
+				server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd);
+				return;
+			}
+			additional_arg = args[2];
+			channel->setKey(additional_arg);
+			std::cout << BLUE << "key set to " << additional_arg << DEFAULT << std::endl;
+		}
 
 		// Check if 'l' mode is being set
 		if ((modeFlag & Channel::USER_LIMIT) != 0)
@@ -145,12 +154,13 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 			}
 			size_t userLimit = std::atoi(args[2].c_str());
 			channel->setUserLimit(userLimit);
-			modeMessage += " " + args[2];
 		}
-		else
-			channel->setUserLimit(0); // If 'l' mode is being removed
 
 		channel->setMode(modeFlag, true);
+
+		std::string modeMessage = ":" + server.getClients()[client_fd]->getNickname() + " MODE " + target + " :" + mode;
+		if (!additional_arg.empty())
+			modeMessage += " " + additional_arg;
 
 		// Notify all channel members
 		channel->broadcastMessage(modeMessage, server);
@@ -164,12 +174,9 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 			return;
 		}
 
-		// Apply mode change
 		int modeFlag = parseClientMode(mode);
 		client->setMode(modeFlag, true);
 
-		// Send a reply back to the client
-		std::string modeReply = ":ft_irc 221 " + client->getNickname() + " :" + mode;
-		server.sendReply(modeReply, client_fd);
+		server.sendReply(":ft_irc 221 " + client->getNickname() + " :" + mode, client_fd);
 	}
 }

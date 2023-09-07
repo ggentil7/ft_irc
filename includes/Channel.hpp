@@ -20,7 +20,7 @@ class Channel
 private:
 	std::string		_name;
 	std::string		_topic;
-	std::string		_password;
+	std::string		_key;
 	std::list<int>	_members;
 	std::list<int>	_operators;
 	int				_channelModes;
@@ -56,8 +56,8 @@ public:
 	size_t	getUserLimit() const;
 	void	setUserLimit(size_t limit);
 
-	std::string		getPassword() const;
-	void			setPassword(std::string password);
+	std::string		getKey() const;
+	void			setKey(std::string key);
 
 	void	addInvitedUser(Client *client);
 	bool	isUserInvited(Client *client);

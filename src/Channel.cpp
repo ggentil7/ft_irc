@@ -5,7 +5,7 @@
 #include "../includes/NickCommand.hpp"
 #include "../includes/Server.hpp"
 
-Channel::Channel() : _channelModes(NONE), _userLimit(0) {}
+Channel::Channel() : _key("key"), _channelModes(NONE), _userLimit(0) {}
 
 Channel::Channel(Channel const &src)
 {
@@ -102,14 +102,14 @@ void	Channel::setUserLimit(size_t limit)
 	_userLimit = limit;
 }
 
-std::string		Channel::getPassword() const
+std::string		Channel::getKey() const
 {
-	return (_password);
+	return (_key);
 }
 
-void	Channel::setPassword(std::string password)
+void	Channel::setKey(std::string key)
 {
-	_password = password;
+	_key = key;
 }
 
 void Channel::addInvitedUser(Client *client)
