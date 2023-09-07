@@ -26,6 +26,7 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	_commandMap["MODE"] = new ModeCommand();
 	_commandMap["PRIVMSG"] = new PrivmsgCommand();
 	_commandMap["OPER"] = new OperCommand();
+	_commandMap["PING"] = new PingCommand();
 }
 
 Server::Server(Server const &src)
@@ -236,10 +237,7 @@ void Server::connectionServer()
 					{
 						std::string singleCommand = incomingBuffer.substr(0, pos);
 
-						if (singleCommand.substr(0, 4) != "PING" && singleCommand.substr(0, 4) != "PONG")
-						{
-							std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand  << DEFAULT << std::endl;
-						}
+						std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand  << DEFAULT << std::endl;
 
 						std::pair<std::string, std::vector<std::string> > parsedData = parse(singleCommand);
 						std::string command = parsedData.first;
@@ -249,7 +247,6 @@ void Server::connectionServer()
 							ICommand *commandHandler = _commandMap[command];
 							commandHandler->execute(args, _client_socket[i], *this);
 						}
-
 						// Remove the processed command from the buffer
 						incomingBuffer.erase(0, pos + 2);
 					}
