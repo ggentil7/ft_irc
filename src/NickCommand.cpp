@@ -52,21 +52,5 @@ void NickCommand::execute(const std::vector<std::string> &args, int client_fd, S
 	std::string	reply = ":" + oldNick + "!~username@host NICK :" + newNick;
 	server.sendReply(reply, client_fd);
 
-	// Welcome Message (RPL_WELCOME)
-	std::string welcomeMsg = ":ft_irc 001 " + server.getClients()[client_fd]->getNickname() + " :Welcome to the IRC Network " + server.getClients()[client_fd]->getNickname();
-	server.sendReply(welcomeMsg, client_fd);
-
-	// Your Host (RPL_YOURHOST)
-	std::string yourHostMsg = ":ft_irc 002 " + server.getClients()[client_fd]->getNickname() + " :Your host is ft_irc, running version ircd-2.10.3"; //? use config file
-	server.sendReply(yourHostMsg, client_fd);
-
-	// Send Server Created
-	std::string createdMsg = ":ft_irc 003 " + server.getClients()[client_fd]->getNickname() + " :This server was created {TODO}"; //! add real time ?
-	server.sendReply(createdMsg, client_fd);
-
-	// Send My Info
-	std::string myInfoMsg = ":ft_irc 004 " + server.getClients()[client_fd]->getNickname() + " ft_irc ircd-2.10.3"; //? use config file
-	server.sendReply(myInfoMsg, client_fd);
-
-	server.getClients()[client_fd]->setRegistration(Client::DONE);
+	server.getClients()[client_fd]->setRegistration(Client::NICK);
 }

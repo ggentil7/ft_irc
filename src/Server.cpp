@@ -25,6 +25,7 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	_commandMap["TOPIC"] = new TopicCommand();
 	_commandMap["MODE"] = new ModeCommand();
 	_commandMap["PRIVMSG"] = new PrivmsgCommand();
+	_commandMap["OPER"] = new OperCommand();
 }
 
 Server::Server(Server const &src)
