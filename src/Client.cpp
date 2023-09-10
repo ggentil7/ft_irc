@@ -5,7 +5,7 @@
 #include "../includes/NickCommand.hpp"
 #include "../includes/Server.hpp"
 
-Client::Client() : _nickname("default_nick"), _username("default_user"), _hostname("default_host"), _realname("default_real"), _isRegistered(false), _clientModes(NONE) {}
+Client::Client() : _nickname("default_nick"), _username("default_user"), _hostname("default_host"), _realname("default_real"), _registration(Client::FAIL), _clientModes(Client::NONE) {}
 
 Client::Client(Client const &src)
 {
@@ -44,9 +44,9 @@ std::string Client::getRealname(void) const
 	return _realname;
 }
 
-bool Client::getRegistration(void) const
+int	Client::getRegistration(void) const
 {
-	return _isRegistered;
+	return _registration;
 }
 
 void Client::setFd(int fd)
@@ -75,9 +75,9 @@ void Client::setRealname(std::string realname)
 }
 
 
-void Client::setRegistration(bool registered)
+void	Client::setRegistration(int registration)
 {
-	this->_isRegistered = registered;
+	this->_registration = registration;
 }
 
 void Client::setMode(int modeFlag, bool enable)

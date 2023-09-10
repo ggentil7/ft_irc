@@ -28,6 +28,9 @@
 #include "NickCommand.hpp"
 #include "PassCommand.hpp"
 #include "InviteCommand.hpp"
+#include "OperCommand.hpp"
+#include "PingCommand.hpp"
+#include "QuitCommand.hpp"
 
 #define IP_SERVER "127.0.0.1"
 #define BACK_LOG 30
@@ -93,6 +96,8 @@ public:
 	bool	isNickInUse(const std::string& nick);
 	void	sendReply(const std::string& message, int client_fd);
 	bool	sendMessage(const std::string &recipient, const std::string &message, Client *sender);
+
+	void	removeClient(int client_fd);
 };
 
 #endif

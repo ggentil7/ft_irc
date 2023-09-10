@@ -5,7 +5,6 @@
 #include "../includes/CapCommand.hpp"
 #include "../includes/InviteCommand.hpp"
 #include "../includes/ModeCommand.hpp"
-#include "../includes/WhoisCommand.hpp"
 #include "../includes/NickCommand.hpp"
 #include "../includes/PrivmsgCommand.hpp"
 #include "../includes/UserCommand.hpp"
@@ -25,8 +24,10 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	_commandMap["INVITE"] = new InviteCommand();
 	_commandMap["TOPIC"] = new TopicCommand();
 	_commandMap["MODE"] = new ModeCommand();
-	_commandMap["WHOIS"] = new WhoisCommand();
 	_commandMap["PRIVMSG"] = new PrivmsgCommand();
+	_commandMap["OPER"] = new OperCommand();
+	_commandMap["PING"] = new PingCommand();
+	_commandMap["QUIT"] = new QuitCommand();
 }
 
 Server::Server(Server const &src)
@@ -204,21 +205,7 @@ void Server::connectionServer()
 			// Ajout du nouveau client dans le vector
 			_client_socket.push_back(new_socket_client);
 
-			std::string			defaultNickBase = "guest";
-			std::string			defaultNick;
-			std::ostringstream	convert;
-
-			int uniqueID = new_socket_client;
-			do	{
-					convert.str("");							// Clearing the stringstream
-					convert.clear();							// Clearing the stringstream state flags
-					convert << defaultNickBase << uniqueID++;	// increment uniqueID after using its value
-					defaultNick = convert.str();
-				}
-			while	(isNickInUse(defaultNick));
-
 			_clients[new_socket_client] = new Client();
-			_clients[new_socket_client]->setNickname(defaultNick);
 			_clients[new_socket_client]->setFd(new_socket_client);
 		}
 
@@ -234,7 +221,7 @@ void Server::connectionServer()
 				if ((valread = read(sd, buffer, 1024)) == 0)
 				{
 					// Handle disconnection logic
-					close(sd);
+					removeClient(sd);
 					_client_socket.erase(_client_socket.begin() + i);
 					clientBuffers.erase(sd); // Remove the buffer for the disconnected client
 				}
@@ -251,10 +238,7 @@ void Server::connectionServer()
 					{
 						std::string singleCommand = incomingBuffer.substr(0, pos);
 
-						if (singleCommand.substr(0, 4) != "PING" && singleCommand.substr(0, 4) != "PONG")
-						{
-							std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand  << DEFAULT << std::endl;
-						}
+						std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand  << DEFAULT << std::endl;
 
 						std::pair<std::string, std::vector<std::string> > parsedData = parse(singleCommand);
 						std::string command = parsedData.first;
@@ -264,7 +248,6 @@ void Server::connectionServer()
 							ICommand *commandHandler = _commandMap[command];
 							commandHandler->execute(args, _client_socket[i], *this);
 						}
-
 						// Remove the processed command from the buffer
 						incomingBuffer.erase(0, pos + 2);
 					}
@@ -373,5 +356,21 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 
 void Server::addChannel(const std::string& channelName, Channel* channel)
 {
-    _channels[channelName] = channel;
+	_channels[channelName] = channel;
+}
+
+void	Server::removeClient(int client_fd)
+{
+	std::map<int, Client *>::iterator it = _clients.find(client_fd);
+	if (it != _clients.end())
+	{
+		// Delete the client object from heap
+		delete it->second;
+
+		// Remove the client from the map
+		_clients.erase(it);
+	}
+
+	// Close the socket
+	close(client_fd);
 }

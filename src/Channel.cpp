@@ -5,7 +5,7 @@
 #include "../includes/NickCommand.hpp"
 #include "../includes/Server.hpp"
 
-Channel::Channel() : _channelModes(NONE) {}
+Channel::Channel() : _key("key"), _channelModes(NONE), _userLimit(0) {}
 
 Channel::Channel(Channel const &src)
 {
@@ -18,21 +18,6 @@ Channel &Channel::operator=(Channel const &rhs)
 }
 
 Channel::~Channel() {}
-
-// void	Channel::addClient(int fd, Server &server)
-// {
-// 	Client* clientToAdd = server.getClientByFd(fd);
-//     if (clientToAdd) {
-//         // Vérifie si le client n'est pas déjà membre du canal
-//         if (std::find(_members.begin(), _members.end(), clientToAdd) == _members.end())
-// 		{
-//             _members.push_back(clientToAdd);
-
-//             // envoie notif dans channel que qlqun a join
-//             broadcastMessage(clientToAdd->getNickname() + " has joined " + _name, server);
-//         }
-//     }
-// }
 
 void Channel::addClient(int fd)
 {
@@ -107,7 +92,27 @@ bool Channel::isModeSet(int modeFlag) const
 	return (_channelModes & modeFlag) != 0;
 }
 
-void Channel::addInvitedUsers(Client *client)
+size_t	Channel::getUserLimit() const
+{
+	return (_userLimit);
+}
+
+void	Channel::setUserLimit(size_t limit)
+{
+	_userLimit = limit;
+}
+
+std::string		Channel::getKey() const
+{
+	return (_key);
+}
+
+void	Channel::setKey(std::string key)
+{
+	_key = key;
+}
+
+void Channel::addInvitedUser(Client *client)
 {
 	if (std::find(_invitedUsers.begin(), _invitedUsers.end(), client) == _invitedUsers.end())
 	{
