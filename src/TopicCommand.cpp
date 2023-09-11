@@ -2,8 +2,6 @@
 
 void TopicCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
-	std::cout << "TopicCommand executed" << std::endl; // debug
-	
 	if (args.size() < 1)
 	{
 		server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd); // ERR_NEEDMOREPARAMS
@@ -23,7 +21,7 @@ void TopicCommand::execute(const std::vector<std::string> &args, int client_fd, 
 
 		if(!channel)
 		{
-			server.sendReply(":ft_irc 403 MODE :No such channel " + target , client_fd); // ERR_NOSUCHCHANNEL
+			server.sendReply(":ft_irc 403 MODE :No such channel " + target, client_fd); // ERR_NOSUCHCHANNEL
 			return;
 		}
 		if (!channel->isMember(client_fd))
@@ -43,8 +41,7 @@ void TopicCommand::execute(const std::vector<std::string> &args, int client_fd, 
 				newTopic.append(args[i]);
 			channel->setTopic(newTopic);
 
-			std::string reply = ":" + server.getClients()[client_fd]->getNickname() + " TOPIC " + channel->getName() + " :" + args[1];
-			server.sendReply(reply, client_fd);
+			std::string reply = ":" + server.getClients()[client_fd]->getNickname() + " TOPIC " + channel->getName() + " :" + channel->getTopic();
 			channel->broadcastMessage(reply, server);
 		}
 }
