@@ -28,6 +28,7 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	_commandMap["OPER"] = new OperCommand();
 	_commandMap["PING"] = new PingCommand();
 	_commandMap["QUIT"] = new QuitCommand();
+	_commandMap["NOTICE"] = new NoticeCommand();
 }
 
 Server::Server(Server const &src)
