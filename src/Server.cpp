@@ -238,8 +238,8 @@ void Server::connectionServer()
 					{
 						std::string singleCommand = incomingBuffer.substr(0, pos);
 
-						if (!singleCommand.empty() && singleCommand.back() == '\r')
-							singleCommand.pop_back();
+						if (!singleCommand.empty() && singleCommand[singleCommand.size() - 1] == '\r')
+							singleCommand.erase(singleCommand.size() - 1);
 
 						std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand  << DEFAULT << std::endl;
 						std::pair<std::string, std::vector<std::string> > parsedData = parse(singleCommand);
