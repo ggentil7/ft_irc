@@ -18,7 +18,7 @@ void KickCommand::execute(const std::vector<std::string> &args, int client_fd, S
 	Client	*kickingClient = server.getClientByFd(client_fd);
 	Client	*targetClient = server.getClientByNickname(targetNick);
 	Channel	*targetChannel = server.getChannelByName(channelName);
-
+	//! change to use channel operator
 	if (!kickingClient->isModeSet(Client::OPERATOR))
 	{
 		server.sendReply(":ft_irc 482 MODE :You're not channel operator", client_fd);
