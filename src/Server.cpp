@@ -166,8 +166,8 @@ void Server::createSocket()
 
 void Server::connectionServer()
 {
-	char buffer[1025];
 	socklen_t addrlen = sizeof(_addr);
+	std::map<int, std::string> clientBuffers; // Store buffer for each client
 
 	while (true)
 	{
@@ -215,10 +215,9 @@ void Server::connectionServer()
 			int sd = _client_socket[i];
 			if (FD_ISSET(sd, &readfds))
 			{
-				//TODO handle CTRL-D
-				std::map<int, std::string> clientBuffers; // Store buffer for each client
+				int		valread;
+				char	buffer[1025];
 
-				int valread;
 				if ((valread = read(sd, buffer, 1024)) == 0)
 				{
 					// Handle disconnection logic
@@ -235,12 +234,14 @@ void Server::connectionServer()
 					std::string &incomingBuffer = clientBuffers[sd]; // Reference to the buffer for easier access
 
 					// Loop to find each command separated by \r\n
-					while ((pos = incomingBuffer.find("\r\n")) != std::string::npos)
+					while ((pos = incomingBuffer.find("\n")) != std::string::npos)
 					{
 						std::string singleCommand = incomingBuffer.substr(0, pos);
 
-						std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand  << DEFAULT << std::endl;
+						if (!singleCommand.empty() && singleCommand.back() == '\r')
+							singleCommand.pop_back();
 
+						std::cout << RED << "Client: [" << sd << "->" << this->_socket << "] " << singleCommand  << DEFAULT << std::endl;
 						std::pair<std::string, std::vector<std::string> > parsedData = parse(singleCommand);
 						std::string command = parsedData.first;
 						std::vector<std::string> args = parsedData.second;
@@ -250,7 +251,7 @@ void Server::connectionServer()
 							commandHandler->execute(args, _client_socket[i], *this);
 						}
 						// Remove the processed command from the buffer
-						incomingBuffer.erase(0, pos + 2);
+						incomingBuffer.erase(0, pos + 1);
 					}
 				}
 			}
