@@ -2,7 +2,7 @@
 
 void QuitCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
-	std::string quitMessage = "Client Quit";
+	std::string quitMessage = "leaving";
 	if (args.size() >= 1)
 		quitMessage = args[0];
 
