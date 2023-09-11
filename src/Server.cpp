@@ -357,6 +357,8 @@ bool Server::sendMessage(const std::string &recipient, const std::string &messag
 void Server::addChannel(const std::string& channelName, Channel* channel)
 {
 	_channels[channelName] = channel;
+
+	channel->setName(channelName);
 }
 
 void	Server::removeClient(int client_fd)

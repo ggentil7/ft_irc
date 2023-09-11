@@ -62,6 +62,12 @@ public:
 	void	addInvitedUser(Client *client);
 	bool	isUserInvited(Client *client);
 
+	std::string		getTopic() const;
+	void			setTopic(std::string topic);
+
+	std::string		getName() const;
+	void			setName(std::string name);
+	
 	enum Mode {
 		NONE = 0x0,
 		INVITE_ONLY = 0x1,		// i
