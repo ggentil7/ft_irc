@@ -124,3 +124,23 @@ bool Channel::isUserInvited(Client *client)
 {
 	return std::find(_invitedUsers.begin(), _invitedUsers.end(), client) != _invitedUsers.end();
 }
+
+std::string		Channel::getTopic() const
+{
+	return (_topic);
+}
+
+void	Channel::setTopic(std::string topic)
+{
+	_topic = topic;
+}
+
+std::string		Channel::getName() const
+{
+	return (_name);
+}
+
+void	Channel::setName(std::string name)
+{
+	_name = name;
+}
