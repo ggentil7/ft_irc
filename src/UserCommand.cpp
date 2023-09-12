@@ -11,15 +11,15 @@ void UserCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		server.sendReply(welcomeMsg, client_fd);
 
 		// Your Host (RPL_YOURHOST)
-		std::string yourHostMsg = ":ft_irc 002 " + client->getNickname() + " :Your host is ft_irc, running version ircd-2.10.3"; //? use config file
+		std::string yourHostMsg = ":ft_irc 002 " + client->getNickname() + " :Your host is ft_irc";
 		server.sendReply(yourHostMsg, client_fd);
 
 		// Send Server Created
-		std::string createdMsg = ":ft_irc 003 " + client->getNickname() + " :This server was created {TODO}"; //! add real time ?
+		std::string createdMsg = ":ft_irc 003 " + client->getNickname() + " :This server was created today"; //! add real time ?
 		server.sendReply(createdMsg, client_fd);
 
 		// Send My Info
-		std::string myInfoMsg = ":ft_irc 004 " + client->getNickname() + " ft_irc ircd-2.10.3"; //? use config file
+		std::string myInfoMsg = ":ft_irc 004 " + client->getNickname() + " ft_irc";
 		server.sendReply(myInfoMsg, client_fd);
 
 		client->setRegistration(Client::DONE);
