@@ -114,7 +114,7 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 	std::string	mode = args[1];
 	std::string	additional_arg;
 
-	if (target[0] == '#')
+	if (target[0] == '&' || target[0] == '#' || target[0] == '+' || target[0] == '!')
 	{ // This is a channel mode change
 		Channel *channel = server.getChannelByName(target);
 		if (!channel)
@@ -174,6 +174,11 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		}
 
 		int modeFlag = parseClientMode(mode);
+
+		// Ignore +o as users could bypass the authentication mechanisms of the OPER command
+		if ((modeFlag & Client::OPERATOR) != 0)
+			return;
+
 		client->setMode(modeFlag, true);
 
 		server.sendReply(":ft_irc 221 " + client->getNickname() + " :" + mode, client_fd);
