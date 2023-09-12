@@ -21,6 +21,7 @@ private:
 	std::string	_realname;
 	int			_registration;
 	int			_clientModes;
+	bool		_quit;
 public:
 	Client();
 	Client(Client const &src);
@@ -33,6 +34,7 @@ public:
 	std::string	getHostname(void) const;
 	std::string	getRealname(void) const;
 	int			getRegistration(void) const;
+	bool		getQuit(void) const;
 
 	void	setFd(int fd);
 	void	setNickname(std::string nickname);
@@ -40,6 +42,7 @@ public:
 	void	setHostname(std::string hostname);
 	void	setRealname(std::string realname);
 	void	setRegistration(int registration);
+	void	setQuit(bool quit);
 
 	void	setMode(int modeFlag, bool enable);
 	bool	isModeSet(int modeFlag) const;

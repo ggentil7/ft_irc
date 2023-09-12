@@ -86,7 +86,6 @@ public:
 
 	std::string getPassword();
 	void		setPassword(std::string password);
-	bool		getValidPassword();
 
 	void 		createSocket();
 	void 		connectionServer();

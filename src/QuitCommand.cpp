@@ -2,6 +2,9 @@
 
 void QuitCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
+	if (server.getClients()[client_fd]->getQuit() == true)
+		return;
+
 	std::string quitMessage = "leaving";
 	if (args.size() >= 1)
 		quitMessage = args[0];
@@ -26,4 +29,5 @@ void QuitCommand::execute(const std::vector<std::string> &args, int client_fd, S
 			channel->broadcastMessage(notification, server);
 		}
 	}
+	server.getClients()[client_fd]->setQuit(true);
 }

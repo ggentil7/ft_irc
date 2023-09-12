@@ -19,16 +19,6 @@ Channel &Channel::operator=(Channel const &rhs)
 
 Channel::~Channel() {}
 
-void Channel::addClient(int fd)
-{
-	_members.push_back(fd);
-}
-
-void Channel::removeClient(int fd)
-{
-	(void)fd;
-}
-
 void Channel::broadcastMessage(const std::string &message, Server &server)
 {
 	for (std::list<int>::iterator it = _members.begin(); it != _members.end(); ++it)

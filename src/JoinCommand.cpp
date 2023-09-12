@@ -27,11 +27,8 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		targetChannel = new Channel();
 		server.addChannel(channelName, targetChannel);
 
-		targetChannel->addClient(client_fd);
+		targetChannel->addMember(client_fd);
 		targetChannel->addOperator(client_fd);
-
-		client->setMode(Client::OPERATOR, true); //! use channel operator instead of client operator
-		server.sendReply(joinMsg, client_fd);
 	}
 	else
 	{
@@ -49,14 +46,16 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		if (targetChannel->isModeSet(Channel::KEY_PROTECTED))
 		{
 			if (args.size() < 2 || args[1] != targetChannel->getKey())
+			{
 				server.sendReply(":server 475 " + client->getNickname() + " " + channelName + " :Cannot join channel (+k)", client_fd);
-			return;
+				return;
+			}
 		}
-		targetChannel->addClient(client_fd);
-		server.sendReply(joinMsg, client_fd);
+		targetChannel->addMember(client_fd);
 	}
 	targetChannel->broadcastMessage(joinMsg, server);
-	//! Send topic
+	if (!targetChannel->getTopic().empty())
+			server.sendReply(":ft_irc 332 " + client->getNickname() + " " + channelName + " :" + targetChannel->getTopic(), client_fd); // RPL_TOPIC
 	//! Send list of users
 	/*
 		:server 353 YourNick = #channelname :@YourNick User2 User3

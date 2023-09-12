@@ -49,6 +49,11 @@ int	Client::getRegistration(void) const
 	return _registration;
 }
 
+bool	Client::getQuit(void) const
+{
+	return _quit;
+}
+
 void Client::setFd(int fd)
 {
 	this->_fd = fd;
@@ -78,6 +83,11 @@ void Client::setRealname(std::string realname)
 void	Client::setRegistration(int registration)
 {
 	this->_registration = registration;
+}
+
+void	Client::setQuit(bool quit)
+{
+	this->_quit = quit;
 }
 
 void Client::setMode(int modeFlag, bool enable)

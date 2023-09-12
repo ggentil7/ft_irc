@@ -124,10 +124,7 @@ void	Server::setPassword(std::string password)
 	_password = password;
 }
 
-bool Server::getValidPassword()
-{
-	return (_validPassword);
-}
+
 
 void Server::createSocket()
 {
@@ -222,6 +219,10 @@ void Server::connectionServer()
 				if ((valread = read(sd, buffer, BUFFER_SIZE)) == 0)
 				{
 					// Handle disconnection logic
+					std::vector<std::string> newArgs;
+					newArgs.push_back("Quit");
+					ICommand *commandHandler = _commandMap["QUIT"];
+					commandHandler->execute(newArgs, sd, *this);
 					removeClient(sd);
 					_client_socket.erase(_client_socket.begin() + i);
 					clientBuffers.erase(sd); // Remove the buffer for the disconnected client

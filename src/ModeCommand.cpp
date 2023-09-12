@@ -104,28 +104,44 @@ int	ModeCommand::parseClientMode(const std::string &modeStr)
 
 void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
-	if (args.size() < 2)
+	Client	*client = server.getClients()[client_fd];
+	if (!client)
+		return;
+
+	if (args.size() < 1)
 	{
 		server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd); // ERR_NEEDMOREPARAMS
 		return;
 	}
 
-	std::string	target = args[0];
+	std::string	targetName = args[0];
+
+	if (args.size() == 1)
+	{
+		std::string	modeString = "mode_string"; // TODO
+		std::string	modeArgs = "mode_arguments"; // TODO
+		server.sendReply(":ft_irc 324 " + client->getNickname() + " " + targetName + " " + modeString + " " + modeArgs, client_fd); // RPL_CHANNELMODEIS
+		return;
+	}
+
 	std::string	mode = args[1];
 	std::string	additional_arg;
 
-	if (target[0] == '&' || target[0] == '#' || target[0] == '+' || target[0] == '!')
+	if (args.size() >= 3)
+		additional_arg = args[2];
+
+	if (targetName[0] == '&' || targetName[0] == '#' || targetName[0] == '+' || targetName[0] == '!')
 	{ // This is a channel mode change
-		Channel *channel = server.getChannelByName(target);
+		Channel *channel = server.getChannelByName(targetName);
 		if (!channel)
 		{
-			server.sendReply(":ft_irc 403 " + server.getClients()[client_fd]->getNickname() + " " + target + " :No such channel", client_fd); // ERR_NOSUCHCHANNEL
+			server.sendReply(":ft_irc 403 " + client->getNickname() + " " + targetName + " :No such channel", client_fd); // ERR_NOSUCHCHANNEL
 			return;
 		}
 
 		if (!channel->isOperator(client_fd))
 		{
-			server.sendReply(":ft_irc 482 " + server.getClients()[client_fd]->getNickname() + " " + target + " :You're not channel operator", client_fd); // ERR_CHANOPRIVSNEEDED
+			server.sendReply(":ft_irc 482 " + client->getNickname() + " " + targetName + " :You're not channel operator", client_fd); // ERR_CHANOPRIVSNEEDED
 			return;
 		}
 
@@ -136,10 +152,9 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		{
 			if (args.size() < 3)
 			{
-				server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd);
+				server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd); // ERR_NEEDMOREPARAMS
 				return;
 			}
-			additional_arg = args[2];
 			channel->setKey(additional_arg);
 		}
 
@@ -148,16 +163,38 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		{
 			if (args.size() < 3) // Check if limit argument is provided
 			{
-				server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd);
+				server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd); // ERR_NEEDMOREPARAMS
 				return;
 			}
-			size_t userLimit = std::atoi(args[2].c_str());
-			channel->setUserLimit(userLimit);
+			size_t additional_arg = std::atoi(args[2].c_str());
+			channel->setUserLimit(additional_arg);
+		}
+
+		// Check if 'o' mode is being set
+		if ((modeFlag & Channel::OPERATOR) != 0)
+		{
+			if (args.size() < 3)
+			{
+				server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd); // ERR_NEEDMOREPARAMS
+				return;
+			}
+			Client	*targetClient = server.getClientByNickname(additional_arg);
+			if (!targetClient)
+			{
+				server.sendReply(":ft_irc 401 " + client->getNickname() + " " + additional_arg + " :No such nick/channel", client_fd); // ERR_NOSUCHNICK
+				return;
+			}
+			if (!channel->isMember(targetClient->getFd()))
+			{
+				server.sendReply(":ft_irc 441 " + client->getNickname() + " " + additional_arg + " " + targetName + " :They aren't on that channel", client_fd); // ERR_USERNOTINCHANNEL
+				return;
+			}
+			channel->addOperator(targetClient->getFd());
 		}
 
 		channel->setMode(modeFlag, true);
 
-		std::string modeMessage = ":" + server.getClients()[client_fd]->getNickname() + " MODE " + target + " :" + mode;
+		std::string modeMessage = ":" + client->getNickname() + " MODE " + targetName + " :" + mode;
 		if (!additional_arg.empty())
 			modeMessage += " " + additional_arg;
 
@@ -166,10 +203,10 @@ void ModeCommand::execute(const std::vector<std::string> &args, int client_fd, S
 	}
 	else
 	{ // This is a user mode change
-		Client *client = server.getClientByNickname(target);
+		Client *client = server.getClientByNickname(targetName);
 		if (!client)
 		{
-			server.sendReply(":ft_irc 401 " + server.getClients()[client_fd]->getNickname() + " " + target + " :No such nick/channel", client_fd); // ERR_NOSUCHNICK
+			server.sendReply(":ft_irc 401 " + client->getNickname() + " " + targetName + " :No such nick/channel", client_fd); // ERR_NOSUCHNICK
 			return;
 		}
 

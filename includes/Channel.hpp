@@ -35,9 +35,6 @@ public:
 
 	void	broadcastMessage(const std::string &message, Server &server);
 
-	void	addClient(int fd);		//! To replace with addMember
-	void	removeClient(int fd);	//! To replace with removeMember
-
 	void	addMember(int client_fd);
 	void	addOperator(int client_fd);
 
