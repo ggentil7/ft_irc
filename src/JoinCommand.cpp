@@ -58,5 +58,5 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 
 		targetChannel->addClient(client_fd);
 	}
-	targetChannel->broadcastMessage(":" + client->getNickname() + " JOIN " + channelName, server);
+	targetChannel->broadcastMessage(client->getNickname() + " has joined " + channelName, server);
 }
