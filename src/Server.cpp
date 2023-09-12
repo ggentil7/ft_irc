@@ -169,6 +169,7 @@ void Server::connectionServer()
 
 	while (true)
 	{
+		usleep(500);
 		fd_set readfds;
 		bzero(&readfds, sizeof(readfds));
 
