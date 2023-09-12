@@ -2,8 +2,6 @@
 
 void UserCommand::execute(const std::vector<std::string> &args, int client_fd, Server &server)
 {
-	(void) args;
-
 	Client	*client = server.getClients()[client_fd];
 
 	if (client && client->getRegistration() == Client::NICK)
@@ -30,6 +28,19 @@ void UserCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		{
 			client->setMode(Client::OPERATOR, true);
 			server.sendReply(":ft_irc 221 " + client->getNickname() + " :+o", client_fd);
+		}
+	}
+	else if (client && client->getRegistration() == Client::DONE)
+	{
+		if (args.size() < 4)
+		{	
+			server.sendReply(":ft_irc 461 MODE :Not enough parameters", client_fd); // ERR_NEEDMOREPARAMS
+			return;
+		}
+		else 
+		{
+			server.sendReply(":ft_irc 462 MODE :You may not reregister", client_fd);
+			return;
 		}
 	}
 }

@@ -39,7 +39,8 @@ void TopicCommand::execute(const std::vector<std::string> &args, int client_fd, 
 			std::string newTopic;
 			for (size_t i = 1; i < args.size(); i++)
 				newTopic.append(args[i]);
-			channel->setTopic(newTopic);
+			if (newTopic.size())
+				channel->setTopic(newTopic);
 
 			std::string reply = ":" + server.getClients()[client_fd]->getNickname() + " TOPIC " + channel->getName() + " :" + channel->getTopic();
 			channel->broadcastMessage(reply, server);

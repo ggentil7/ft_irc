@@ -19,6 +19,7 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	_commandMap["PASS"] = new PassCommand();
 	_commandMap["NICK"] = new NickCommand();
 	_commandMap["USER"] = new UserCommand();
+	_commandMap["userhost"] = new UserCommand();
 	_commandMap["JOIN"] = new JoinCommand();
 	_commandMap["KICK"] = new KickCommand();
 	_commandMap["INVITE"] = new InviteCommand();
