@@ -12,7 +12,7 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 
 	std::string	channelName = args[0];
 
-	if (channelName[0] != '#')
+	if (channelName[0] != '&' && channelName[0] != '#' && channelName[0] != '+' && channelName[0] != '!')
 		return;
 
 	Client	*client = server.getClientByFd(client_fd);
