@@ -217,9 +217,9 @@ void Server::connectionServer()
 			if (FD_ISSET(sd, &readfds))
 			{
 				int		valread;
-				char	buffer[1025];
+				char	buffer[BUFFER_SIZE + 1];
 
-				if ((valread = read(sd, buffer, 1024)) == 0)
+				if ((valread = read(sd, buffer, BUFFER_SIZE)) == 0)
 				{
 					// Handle disconnection logic
 					removeClient(sd);

@@ -36,6 +36,7 @@
 #define IP_SERVER "127.0.0.1"
 #define BACK_LOG 30
 #define PORT 6667
+#define BUFFER_SIZE 512
 
 # define DEFAULT "\001\033[0;39m\002"
 # define GRAY "\001\033[1;90m\002"
