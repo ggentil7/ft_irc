@@ -13,7 +13,7 @@
 
 Server::Server() {}
 
-Server::Server(int port, std::string password) : _port(port), _password(password),_socket(0), _validPassword(false)
+Server::Server(int port, std::string password) : _port(port), _password(password), _socket(0)
 {
 	_commandMap["CAP"] = new CapCommand();
 	_commandMap["PASS"] = new PassCommand();
@@ -43,8 +43,6 @@ Server &Server::operator=(Server const &src)
 	_port = src._port;
 	_addr = src._addr;
 	_password = src._password;
-	_validPassword = src._validPassword;
-
 	return (*this);
 }
 

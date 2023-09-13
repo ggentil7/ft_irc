@@ -58,7 +58,6 @@ private:
 	int									_port;
 	std::string							_password;
 	int									_socket;
-	bool								_validPassword;
 	struct sockaddr_in					_addr;
 	std::vector<int> 					_client_socket;
 	std::map<int, Client*>				_clients;		// keyed by fd
