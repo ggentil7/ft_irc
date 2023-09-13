@@ -28,7 +28,10 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 		server.addChannel(channelName, targetChannel);
 
 		targetChannel->addMember(client_fd);
+		targetChannel->broadcastMessage(joinMsg, server);
+
 		targetChannel->addOperator(client_fd);
+		server.sendReply(":" + client->getNickname() + " MODE " + channelName + " :+o " + client->getNickname(), client_fd);
 	}
 	else
 	{
@@ -52,13 +55,25 @@ void JoinCommand::execute(const std::vector<std::string> &args, int client_fd, S
 			}
 		}
 		targetChannel->addMember(client_fd);
+		targetChannel->broadcastMessage(joinMsg, server);
 	}
-	targetChannel->broadcastMessage(joinMsg, server);
+
 	if (!targetChannel->getTopic().empty())
 			server.sendReply(":ft_irc 332 " + client->getNickname() + " " + channelName + " :" + targetChannel->getTopic(), client_fd); // RPL_TOPIC
-	//! Send list of users
-	/*
-		:server 353 YourNick = #channelname :@YourNick User2 User3
-		:server 366 YourNick #channelname :End of NAMES list
-	*/
+
+	std::string rplNamReply = ":ft_irc 353 " + server.getClientByFd(client_fd)->getNickname() + " = " + channelName + " :";
+
+	std::list<int> members = targetChannel->getMembers();
+
+	for (std::list<int>::iterator it = members.begin(); it != members.end(); ++it)
+	{
+		Client *client = server.getClientByFd(*it);
+		std::string prefix = "";
+		if (targetChannel->isOperator(*it))
+			prefix = "@";
+		rplNamReply += prefix + client->getNickname() + " ";
+	}
+
+	server.sendReply(rplNamReply, client_fd); // RPL_NAMREPLY
+	server.sendReply(":ft_irc 366 " + server.getClientByFd(client_fd)->getNickname() + " " + channelName + " :End of /NAMES list", client_fd); // RPL_ENDOFNAMES
 }
