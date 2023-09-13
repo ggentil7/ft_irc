@@ -35,7 +35,7 @@ void InviteCommand::execute(const std::vector<std::string> &args, int client_fd,
 			server.sendReply(":server 443 " + invitingClient->getNickname() + " " + targetNick + " " + channelName + " :is already on channel", client_fd);
 			return;
 		}
-		if (targetChannel->isModeSet(Channel::INVITE_ONLY) && !invitingClient->isModeSet(Client::OPERATOR))
+		if (targetChannel->isModeSet(Channel::INVITE_ONLY) && !targetChannel->isOperator(invitingClient->getFd()))
 		{
 			server.sendReply(":server 482 " + invitingClient->getNickname() + " " + channelName + " :You're not channel operator", client_fd);
 			return;

@@ -15,12 +15,12 @@ void TopicCommand::execute(const std::vector<std::string> &args, int client_fd, 
 
 	if(!channel)
 	{
-		server.sendReply(":ft_irc 403 TOPIC :No such channel " + channelName, client_fd); // ERR_NOSUCHCHANNEL
+		server.sendReply(":ft_irc 403 " + client->getNickname() + " " + channelName + " :No such channel", client_fd); // ERR_NOSUCHCHANNEL
 		return;
 	}
 	if (!channel->isMember(client_fd))
 	{
-		server.sendReply(":ft_irc 442 TOPIC :You're not on that channel " + channelName, client_fd); // ERR_NOTONCHANNEL
+		server.sendReply(":ft_irc 442 " + client->getNickname() + " " + channelName + " :You're not on that channel ", client_fd); // ERR_NOTONCHANNEL
 		return;
 	}
 	if (args.size() == 1)
@@ -35,14 +35,15 @@ void TopicCommand::execute(const std::vector<std::string> &args, int client_fd, 
 	{
 		if (channel->isModeSet(Channel::TOPIC_PROTECTED) && !channel->isOperator(client_fd))
 		{
-			server.sendReply(":ft_irc 482 TOPIC :You're not channel operator", client_fd); // ERR_CHANOPRIVSNEEDED
+			server.sendReply(":ft_irc 482 " + client->getNickname() + " " + channelName + " :You're not channel operator", client_fd); // ERR_CHANOPRIVSNEEDED
 			return;
 		}
 		std::string	newTopic = args[1];
 		if (newTopic.empty())
 		{
 			channel->setTopic("");
-			server.sendReply(":ft_irc 331 " + client->getNickname() + " " + channelName + " :No topic is set", client_fd); // RPL_NOTOPIC
+			std::string	topicMsg = ":ft_irc 331 " + client->getNickname() + " " + channelName + " :No topic is set", client_fd; // RPL_NOTOPIC
+			channel->broadcastMessage(topicMsg, server);
 		}
 		else
 		{
